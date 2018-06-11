@@ -31,7 +31,7 @@ public class StateHandler : MonoBehaviour {
 		}
 
 		DontDestroyOnLoad(this.gameObject);
-		SceneManager.sceneLoaded += LoadLevel;
+		SceneManager.sceneLoaded += OnLevelLoaded;
 
 		Instantiate();
 
@@ -39,11 +39,11 @@ public class StateHandler : MonoBehaviour {
 
 	void OnDisable()
 	{
-		SceneManager.sceneLoaded -= LoadLevel;
+		SceneManager.sceneLoaded -= OnLevelLoaded;
 		
 	}
 
-	void LoadLevel(Scene scene, LoadSceneMode mode)
+	void OnLevelLoaded(Scene scene, LoadSceneMode mode)
 	{
 		//Gets called on sceneload
 		gamestate = scene.buildIndex == 1 ? GameState.game : GameState.menu;
@@ -71,10 +71,5 @@ public class StateHandler : MonoBehaviour {
 				players.Add (p.GetComponent<Player>());
 			}
 		}
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
 	}
 }

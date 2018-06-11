@@ -19,6 +19,7 @@ public class GamepadStateHandler : MonoBehaviour {
 	[HideInInspector]public Playerdata[] playerDataArray = new Playerdata[4];
 	[HideInInspector]public PlayerGamepadData[] playerGamepadData = new PlayerGamepadData[4];
 	[HideInInspector]public StateHandler stateHandler;
+	[HideInInspector]public Avatars avatars;
 
 
 	public GameObject[] testObj = new GameObject[4];
@@ -142,7 +143,16 @@ public class GamepadStateHandler : MonoBehaviour {
 			{
 				stateHandler.menuControl.ToggleReady(playerGamepadData[i].playerIndex);
 			}
-
+			if (playerGamepadData[i].active && playerGamepadData[i].prevState.ThumbSticks.Left.X < 0.1f && playerGamepadData[i].state.ThumbSticks.Left.X > 0.1f)
+			{
+				if (avatars)
+					avatars.ChangeAvatar(playerGamepadData[i].playerIndex, 1);
+			}
+			if (playerGamepadData[i].active && playerGamepadData[i].prevState.ThumbSticks.Left.X > -0.1f && playerGamepadData[i].state.ThumbSticks.Left.X < -0.1f)
+			{
+				if (avatars)
+					avatars.ChangeAvatar(playerGamepadData[i].playerIndex, -1);
+			}
 
 			//Handles rest of the inputs.
 			if (inputHandler)

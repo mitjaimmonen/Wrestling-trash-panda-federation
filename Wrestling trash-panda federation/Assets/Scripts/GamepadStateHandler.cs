@@ -33,6 +33,11 @@ public class GamepadStateHandler : MonoBehaviour {
 		stateHandler = GetComponent<StateHandler>();
 		inputHandler = GetComponent<InputHandler>();
 		FindGamepads();
+
+		for(int i = 0; i < playerDataArray.Length;i++)
+		{
+			playerDataArray[i] = null;
+		}
     }
 
 	void FindGamepads()
@@ -48,18 +53,11 @@ public class GamepadStateHandler : MonoBehaviour {
 			gamepad.state = GamePad.GetState(testPlayerIndex);
 			gamepad.prevState = gamepad.state;
 			gamepad.gamepadIndex = i;
+			gamepad.playerIndex = -1;
 			gamepad.active = false;
 
-			bool contains = false;
-			foreach (var pad in playerGamepadData)
-			{
-				if (pad.gamepadIndex == gamepad.gamepadIndex)
-					contains = true;
-			}
-			if (!contains)
-			{
-				playerGamepadData[i] = gamepad;
-			}
+			playerGamepadData[i] = gamepad;
+			
 		}
 	}
 
@@ -75,6 +73,9 @@ public class GamepadStateHandler : MonoBehaviour {
 			//Get current state of gamepad
         	playerGamepadData[i].state = GamePad.GetState((PlayerIndex)playerGamepadData[i].gamepadIndex);
 
+			if (!playerGamepadData[i].state.IsConnected)
+				continue;
+				
 			//Handle player (gamepad) activation - check if A-button was pressed in this gamepad in this frame
 			if (playerGamepadData[i].prevState.Buttons.Y == ButtonState.Released && playerGamepadData[i].state.Buttons.Y == ButtonState.Pressed)
 			{
@@ -102,7 +103,7 @@ public class GamepadStateHandler : MonoBehaviour {
 					for(int j = 0; j < playerDataArray.Length; j++)
 					{
 						//if player's assigned gamepad is same as current gamepad which pressed join
-						if (playerDataArray[j] != null && playerDataArray[j].gamepadIndex == playerGamepadData[i].gamepadIndex)
+						if (playerDataArray[j] != null && playerDataArray[j].gamepadIndex == playerGamepadData[i].gamepadIndex )
 							hasPlayer = true; //Won't add
 					}
 					if (!hasPlayer)
@@ -112,6 +113,7 @@ public class GamepadStateHandler : MonoBehaviour {
 							if (playerDataArray[j] == null)
 							{
 								playerDataArray[j] = newPlayerdata;
+								Debug.Log("Added to array");
 								break;
 							}
 						}
@@ -136,7 +138,7 @@ public class GamepadStateHandler : MonoBehaviour {
 
 
 			}
-			if (playerGamepadData[i].prevState.Buttons.A == ButtonState.Released && playerGamepadData[i].state.Buttons.A == ButtonState.Pressed)
+			if (playerGamepadData[i].active && playerGamepadData[i].prevState.Buttons.A == ButtonState.Released && playerGamepadData[i].state.Buttons.A == ButtonState.Pressed)
 			{
 				stateHandler.menuControl.ToggleReady(playerGamepadData[i].playerIndex);
 			}

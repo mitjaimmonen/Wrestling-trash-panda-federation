@@ -36,6 +36,7 @@ public class StateHandler : MonoBehaviour
 
     public MainMenuController menuControl;
     public GamepadStateHandler gamepadStateHandler;
+    public RoundManager roundManager;
 
     private Mesh[] playerMeshes = new Mesh[4];
     private MeshFilter[] playerMeshFilters = new MeshFilter[4];
@@ -62,6 +63,17 @@ public class StateHandler : MonoBehaviour
 
     }
 
+    private void Update()
+    {
+        if (gamestate == GameState.game)
+        {
+            if (roundManager.isOnRound)
+            {
+                roundManager.UpdateRound();
+            }
+        }
+    }
+
     void OnDisable()
     {
         SceneManager.sceneLoaded -= OnLevelLoaded;
@@ -84,6 +96,7 @@ public class StateHandler : MonoBehaviour
 
         if (gamestate == GameState.menu)
         {
+            roundManager.enabled = false;
             GameObject menu = GameObject.Find("Main Menu");
             if (menu)
                 menuControl = menu.GetComponent<MainMenuController>();
@@ -91,51 +104,54 @@ public class StateHandler : MonoBehaviour
         }
         else if (gamestate == GameState.game)
         {
-            int pDindex = 0;
-            foreach (var p in GameObject.FindGameObjectsWithTag("Player"))
-            {
-                if (pDindex < playersDatas.Count)
-                {
-                    p.GetComponent<Player>().meshNumber = playersDatas[pDindex].meshNumber;
-                    p.GetComponent<Player>().playerNumber = playersDatas[pDindex].playerIndex;
-                    players.Add(p);
-                    Debug.Log("Added player, meshNumber is:" + p.GetComponent<Player>().meshNumber);
-                    pDindex++;
-                }
-                else
-                {
-                    p.SetActive(false);
-                }
+            SpawnPlayers();
+            AttachControllers();
+            roundManager.enabled = true;
+        }
+    }
 
+    private void SpawnPlayers()
+    {
+        int pDindex = 0;
+        foreach (var p in GameObject.FindGameObjectsWithTag("Player"))
+        {
+            if (pDindex < playersDatas.Count)
+            {
+                p.GetComponent<Player>().meshNumber = playersDatas[pDindex].meshNumber;
+                p.GetComponent<Player>().playerNumber = playersDatas[pDindex].playerIndex;
+                players.Add(p);
+                Debug.Log("Added player, meshNumber is:" + p.GetComponent<Player>().meshNumber);
+                pDindex++;
+            }
+            else
+            {
+                p.SetActive(false);
             }
 
-            if (players.Count > 0)
-            {                
+        }
 
-                foreach (GameObject player in players)
-                {
-                    player.GetComponentInChildren<MeshFilter>().mesh = playerMeshes[player.GetComponent<Player>().meshNumber];
-                   
+        if (players.Count > 0)
+        {
 
+            foreach (GameObject player in players)
+            {
+                player.GetComponentInChildren<MeshFilter>().mesh = playerMeshes[player.GetComponent<Player>().meshNumber];
 
-                    //GameObject temp = new GameObject();
-
-
-                    //switch (player.GetComponent<Player>().meshNumber)
-                    //{
-                    //    case 0:
-
-                    //        break;
-                    //    case 1:
-                    //        break;
-                    //    case 2:
-                    //        break;
-                    //    case 3:
-                    //        break;
-                    //}
-                }
             }
         }
+    }
+
+    public void ResetAllPlayers()
+    {
+        foreach (GameObject p in players)
+        {
+            p.GetComponent<Player>().TransportToStart();
+        }
+    }
+
+    private void AttachControllers()
+    {
+        GetComponent<InputHandler>().ConnectToPlayers(players);
     }
 
     public void SavePlayerData(int amountJoined, Avatars avatars)

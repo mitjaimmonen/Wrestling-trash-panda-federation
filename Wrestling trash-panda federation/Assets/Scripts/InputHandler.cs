@@ -96,10 +96,19 @@ public class InputHandler : MonoBehaviour {
 		}
 		if (stateHandler.gamestate == GameState.game)
 		{
-			// players[gamepadData.playerIndex].HandleInput(gamepadData.state, gamepadData.prevState);
+			players[gamepadData.playerIndex].HandleInput(gamepadData.state, gamepadData.prevState);
 		}
 
 		return gamepadData;
 	}
 	
+    public void ConnectToPlayers(List<GameObject> _players)
+    {
+        for (int i = 0; i < _players.Count; i++)
+        {
+            Debug.Log("connecting player " + _players[i].GetComponent<Player>().playerNumber);
+            Player temp = _players[i].GetComponent<Player>();
+            players.Add(temp);
+        }       
+    }
 }

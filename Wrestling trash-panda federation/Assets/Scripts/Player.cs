@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using XInputDotNetPure;
 
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
 
-	public int playerNumber;
-	public int meshNumber;
+    public int playerNumber;
+    public int meshNumber;
     public Playerdata playerData;
 
-	[Tooltip("List of player skins (prefabs). Player chooses which one gets instantiated at main menu joining.")]
-	public GameObject[] modelPrefabs = new GameObject[4];
+    [Tooltip("List of player skins (prefabs). Player chooses which one gets instantiated at main menu joining.")]
+    public GameObject[] modelPrefabs = new GameObject[4];
 
-
+    public Transform[] spawnPoints;
     public int maxHealth;
     public CapsuleCollider playerCollider;
     public GameObject takeDamageParticles;
@@ -29,24 +30,24 @@ public class Player : MonoBehaviour {
 
     protected Animator anim;
 
-     Health health;
-     bool stunBuff = false;
-     bool grabbedBuff = false;
-     float buffTime;
+    Health health;
+    bool stunBuff = false;
+    bool grabbedBuff = false;
+    float buffTime;
 
 
     #region Actions data
-        public float chargeTime = 0.1f;
-        public float hitTime = 0.1f;
-        [HideInInspector]public bool hasWeapon = false;
-        [HideInInspector]public bool weaponCharging = false;
-        [HideInInspector]public bool weaponCharged = false;
-        [HideInInspector]public bool isGrabbing = false;
-        [HideInInspector]public bool isPushing = false;
-        [HideInInspector]public bool isBlocking = false;
-        [HideInInspector]public bool isHitting = false;
-        [HideInInspector]public bool leftHand = false;
-        [HideInInspector]public Weapon currentWeapon;
+    public float chargeTime = 0.1f;
+    public float hitTime = 0.1f;
+    [HideInInspector] public bool hasWeapon = false;
+    [HideInInspector] public bool weaponCharging = false;
+    [HideInInspector] public bool weaponCharged = false;
+    [HideInInspector] public bool isGrabbing = false;
+    [HideInInspector] public bool isPushing = false;
+    [HideInInspector] public bool isBlocking = false;
+    [HideInInspector] public bool isHitting = false;
+    [HideInInspector] public bool leftHand = false;
+    [HideInInspector] public Weapon currentWeapon;
 
 
 
@@ -59,7 +60,7 @@ public class Player : MonoBehaviour {
     float rotAxisV;
     float rotAxisH;
 
-     bool destroying;
+    bool destroying;
 
     //public Player(Playerdata _playerData)
     //{
@@ -74,7 +75,13 @@ public class Player : MonoBehaviour {
     {
         health = new Health(maxHealth);
 
-        anim = GetComponentInChildren<Animator>();
+        anim = GetComponentInChildren<Animator>();     
+
+    }
+
+    private void Start()
+    {
+        TransportToStart();
     }
 
     void Update()
@@ -82,12 +89,18 @@ public class Player : MonoBehaviour {
 
     }
 
+    public void TransportToStart()
+    {
+        transform.position = spawnPoints[playerNumber].position;
+        transform.rotation = spawnPoints[playerNumber].rotation;
+    }
+
     public void HandleInput(GamePadState state, GamePadState prevState)
     {
         if (health.isAlive())
         {
-			if (!stunBuff)
-			{
+            if (!stunBuff)
+            {
                 if (grabbedBuff)
                 {
                     HandleMove(state);
@@ -96,12 +109,12 @@ public class Player : MonoBehaviour {
                 else
                 {
                     HandleMove(state);
-            	    HandleRotating(state);
+                    HandleRotating(state);
                     HandleActions(state, prevState);
 
                 }
 
-			}
+            }
 
             HandleMenuInputs(state, prevState);
 
@@ -143,7 +156,7 @@ public class Player : MonoBehaviour {
             transform.eulerAngles = new Vector3(0, Mathf.Atan2(rotAxisH, rotAxisV) * 180 / Mathf.PI, 0);
         }
     }
-	void HandleActions(GamePadState state, GamePadState prevState)
+    void HandleActions(GamePadState state, GamePadState prevState)
     {
         // Detect if a button was pressed this frame
         if (!isGrabbing)
@@ -177,11 +190,11 @@ public class Player : MonoBehaviour {
                 Hit(); //Hit with HAND
             }
 
-            if  (   !isGrabbing &&
+            if (!isGrabbing &&
                     (prevState.Buttons.X == ButtonState.Released && state.Buttons.X == ButtonState.Pressed) ||
                     (prevState.Buttons.Y == ButtonState.Released && state.Buttons.Y == ButtonState.Pressed) ||
                     (prevState.Buttons.A == ButtonState.Released && state.Buttons.A == ButtonState.Pressed) ||
-                    (prevState.Buttons.B == ButtonState.Released && state.Buttons.B == ButtonState.Pressed) )
+                    (prevState.Buttons.B == ButtonState.Released && state.Buttons.B == ButtonState.Pressed))
             {
                 Grab();
             }
@@ -189,7 +202,7 @@ public class Player : MonoBehaviour {
         else //isGrabbing == true
         {
             if ((state.Buttons.RightShoulder == ButtonState.Pressed && state.Buttons.LeftShoulder == ButtonState.Pressed)
-                ||(state.Triggers.Left > 0.2f && state.Triggers.Right > 0.2f))
+                || (state.Triggers.Left > 0.2f && state.Triggers.Right > 0.2f))
             {
                 if (hasWeapon)
                 {
@@ -282,14 +295,14 @@ public class Player : MonoBehaviour {
         //Some kind of trigger/sphere check about what is in front of player
 
         //If weapon pickup
-            //Move it to hand bone
-            //Assign as currentWeapon
-            //Set animation speed (variable maybe in Weapon)
-            //hasWeapon = true;
-        
+        //Move it to hand bone
+        //Assign as currentWeapon
+        //Set animation speed (variable maybe in Weapon)
+        //hasWeapon = true;
+
         //if another player
-            //Give other player "grabbedBuff" to make its actions disabled
-            isGrabbing = true;
+        //Give other player "grabbedBuff" to make its actions disabled
+        isGrabbing = true;
 
     }
     void EndGrab()
@@ -304,7 +317,7 @@ public class Player : MonoBehaviour {
         if (stunBuff)
             return;
         stunBuff = stunned;
-		grabbedBuff = grabbed;
+        grabbedBuff = grabbed;
         buffTime = time;
 
         StartCoroutine(HandleBuff(stunned));
@@ -314,10 +327,10 @@ public class Player : MonoBehaviour {
     IEnumerator HandleBuff(bool stunned)
     {
         if (stunned)
-		{
-        	yield return new WaitForSecondsRealtime(buffTime);
+        {
+            yield return new WaitForSecondsRealtime(buffTime);
             stunBuff = false;
-		}
+        }
     }
 
     public void GetHit(int dmgValue)
@@ -339,24 +352,24 @@ public class Player : MonoBehaviour {
         }
 
         if (!health.isAlive())
-		{
+        {
             AddBuff(true, false, 1f);
-			FMODUnity.RuntimeManager.PlayOneShot(getKnockedOutBitchSound, transform.position);
-		}
+            FMODUnity.RuntimeManager.PlayOneShot(getKnockedOutBitchSound, transform.position);
+        }
 
     }
 
-	
-	void DIE()
-	{
-		//Play dead animation
-		if (!destroying)
-		{
-            // animControl.PlayDeathAnimation();
-			if (deathSound != "")
-				FMODUnity.RuntimeManager.PlayOneShot(deathSound, transform.position);
-			destroying = true;
-		}
 
-	}
+    void DIE()
+    {
+        //Play dead animation
+        if (!destroying)
+        {
+            // animControl.PlayDeathAnimation();
+            if (deathSound != "")
+                FMODUnity.RuntimeManager.PlayOneShot(deathSound, transform.position);
+            destroying = true;
+        }
+
+    }
 }

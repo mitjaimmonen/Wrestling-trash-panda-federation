@@ -7,14 +7,6 @@ public class Playerdata {
 
 	public int playerIndex;
 	public int gamepadIndex;
+	public int meshNumber; //Used to spawn one of four different meshes, chosen at main menu -- Dunno if it should be here or Player
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }

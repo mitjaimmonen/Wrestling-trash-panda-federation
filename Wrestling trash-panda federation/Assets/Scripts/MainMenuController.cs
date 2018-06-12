@@ -10,6 +10,7 @@ public class MainMenuController : MonoBehaviour {
 	public Text[] readyTexts = new Text[4];
 	public Text countdownText;
 	[HideInInspector]public bool[] ready = new bool[4];
+	public Avatars avatars;
 
 	int amountJoined = 0;
 	int amountReady = 0;

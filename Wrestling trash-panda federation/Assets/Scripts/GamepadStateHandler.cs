@@ -6,11 +6,14 @@ using XInputDotNetPure;
 
 public struct PlayerGamepadData
 {
-	public GamePadState state;
-	public GamePadState prevState;
-	public int gamepadIndex;
-	public int playerIndex;
-	public bool active;
+
+	//Store gamepad data of each player
+
+	public GamePadState state; //Button states etc
+	public GamePadState prevState; //Button states etc from last frame
+	public int gamepadIndex; //Each gamepad gets assigned a number
+	public int playerIndex; //Each player gets assign
+	public bool active; //When joined game, gamepad becomes active
 
 }
 
@@ -65,98 +68,19 @@ public class GamepadStateHandler : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-
 		//Go through all gamepads
 		for (int i = 0; i < playerGamepadData.Length; i++)
 		{
 			//Save old state for button press checking
        		playerGamepadData[i].prevState = playerGamepadData[i].state;
-			//Get current state of gamepad
+			//Get current state of gamepad (all of its buttonstates)
         	playerGamepadData[i].state = GamePad.GetState((PlayerIndex)playerGamepadData[i].gamepadIndex);
 
 			if (!playerGamepadData[i].state.IsConnected)
 				continue;
 				
-			//Handle player (gamepad) activation - check if A-button was pressed in this gamepad in this frame
-			if (playerGamepadData[i].prevState.Buttons.Y == ButtonState.Released && playerGamepadData[i].state.Buttons.Y == ButtonState.Pressed)
-			{
-				//Invert active bool
-				playerGamepadData[i].active = !playerGamepadData[i].active;
-
-				if (playerGamepadData[i].active)
-				{
-					Playerdata newPlayerdata = new Playerdata();
-
-					//Index should be first null
-					for(int j = 0; j < playerDataArray.Length; j++)
-					{
-						if (playerDataArray[j] == null)
-						{
-							newPlayerdata.playerIndex = j;
-							break;
-						}
-					}
-
-					playerGamepadData[i].playerIndex = newPlayerdata.playerIndex;
-					newPlayerdata.gamepadIndex = playerGamepadData[i].gamepadIndex;
-
-					bool hasPlayer = false; //temp
-					for(int j = 0; j < playerDataArray.Length; j++)
-					{
-						//if player's assigned gamepad is same as current gamepad which pressed join
-						if (playerDataArray[j] != null && playerDataArray[j].gamepadIndex == playerGamepadData[i].gamepadIndex )
-							hasPlayer = true; //Won't add
-					}
-					if (!hasPlayer)
-					{
-						for(int j = 0; j < playerDataArray.Length; j++)
-						{
-							if (playerDataArray[j] == null)
-							{
-								playerDataArray[j] = newPlayerdata;
-								Debug.Log("Added to array");
-								break;
-							}
-						}
-						Debug.Log("activation of gamepad:  " + newPlayerdata.gamepadIndex + ", playerindex: " + newPlayerdata.playerIndex);
-						//Updates menu accordingly
-							
-						stateHandler.menuControl.AddPlayer(newPlayerdata.playerIndex);
-					}
-				}
-				else
-				{
-					for (int j = 0; j < playerDataArray.Length; j++)
-					{
-						if (playerDataArray[j] != null && playerDataArray[j].gamepadIndex == playerGamepadData[i].gamepadIndex)
-						{
-							stateHandler.menuControl.RemovePlayer(playerDataArray[j].playerIndex);
-							Debug.Log("deactivation of gamepad: " + playerDataArray[j].gamepadIndex + ", playerindex: " + playerDataArray[j].playerIndex);
-							playerDataArray[j] = null;
-						}
-					}
-				}
-
-
-			}
-			if (playerGamepadData[i].active && playerGamepadData[i].prevState.Buttons.A == ButtonState.Released && playerGamepadData[i].state.Buttons.A == ButtonState.Pressed)
-			{
-				stateHandler.menuControl.ToggleReady(playerGamepadData[i].playerIndex);
-			}
-			if (playerGamepadData[i].active && playerGamepadData[i].prevState.ThumbSticks.Left.X < 0.1f && playerGamepadData[i].state.ThumbSticks.Left.X > 0.1f)
-			{
-				if (avatars)
-					avatars.ChangeAvatar(playerGamepadData[i].playerIndex, 1);
-			}
-			if (playerGamepadData[i].active && playerGamepadData[i].prevState.ThumbSticks.Left.X > -0.1f && playerGamepadData[i].state.ThumbSticks.Left.X < -0.1f)
-			{
-				if (avatars)
-					avatars.ChangeAvatar(playerGamepadData[i].playerIndex, -1);
-			}
-
-			//Handles rest of the inputs.
 			if (inputHandler)
-				inputHandler.HandleInput(playerGamepadData);
+				inputHandler.HandleInput(playerGamepadData, i);
 
 		}
     }

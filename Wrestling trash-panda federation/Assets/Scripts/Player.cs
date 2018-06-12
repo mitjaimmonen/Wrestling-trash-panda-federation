@@ -90,7 +90,7 @@ public class Player : MonoBehaviour {
             text += string.Format("isGrabbing: {0}\n", isGrabbing);
             text += string.Format("IsPushing: {0}\n", isPushing);
             text += string.Format("weaponCharging: {0}, weaponcharged: {1}, chargeTime: {2}\n", weaponCharging, weaponCharged, chargeTime);
-            text += string.Format("CurrentWEapon: {1}\n",currentWeapon);
+            text += string.Format("CurrentWEapon: {0}\n",currentWeapon);
             text += string.Format("isHitting: {0}, leftHand: {1}, hitTime {2}\n", isHitting,leftHand, hitTime);
             GUI.Label(new Rect(0, 0, Screen.width, Screen.height), text);
 
@@ -314,11 +314,27 @@ public class Player : MonoBehaviour {
     }
     void EndGrab()
     {
-        //Detach enemy from bone
+        //Detach enemy/weapon from bone
         //Throw enemy/weapon with physics force
         currentWeapon = null;
         isGrabbing = false;
     }
+
+    public void FlushAllActionData()
+    {
+        chargeTime = 0.1f;
+        hitTime = 0.1f;
+        weaponCharging = false;
+        weaponCharged = false;
+        isGrabbing = false;
+        isPushing = false;
+        isBlocking = false;
+        isHitting = false;
+        leftHand = false;
+        currentWeapon = null;
+    }
+
+
 
     public void AddBuff(bool stunned, bool grabbed, float time)
     {

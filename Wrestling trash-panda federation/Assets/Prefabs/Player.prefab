@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 114094120948674724}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -127,20 +127,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerNumber: 0
   meshNumber: 0
+  playerData:
+    playerIndex: 0
+    gamepadIndex: 0
+    meshNumber: 0
   modelPrefabs:
   - {fileID: 1153549671485814, guid: 44e07f755a0698c4988d45726837e411, type: 2}
   - {fileID: 1855420981675932, guid: 441322e69789bb94199b02eaa3e200ce, type: 2}
   - {fileID: 1457154534494100, guid: 31229a1ef2515384dac627c883603dbf, type: 2}
   - {fileID: 1297491481204088, guid: 534acedd59183354b968e894e84d410a, type: 2}
+  maxHealth: 5
+  playerCollider: {fileID: 136973623302659060}
+  takeDamageParticles: {fileID: 0}
   movementSpeed: 5
   movementDeadzone: 0.05
   rotationDeadzone: 0.05
-  playerCollider: {fileID: 136973623302659060}
-  takeDamageParticles: {fileID: 0}
-  maxHealth: 5
   damageSound: 
   deathSound: 
   getKnockedOutBitchSound: 
+  chargeTime: 0.1
+  hitTime: 0.1
+  hasWeapon: 0
+  weaponCharging: 0
+  weaponCharged: 0
+  isGrabbing: 0
+  isPushing: 0
+  isBlocking: 0
+  isHitting: 0
+  leftHand: 0
+  currentWeapon: {fileID: 0}
 --- !u!136 &136973623302659060
 CapsuleCollider:
   m_ObjectHideFlags: 1

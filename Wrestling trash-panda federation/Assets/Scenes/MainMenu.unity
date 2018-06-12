@@ -1197,6 +1197,7 @@ MonoBehaviour:
   countdownText: {fileID: 1512938423}
   ready: 00000000
   avatars: {fileID: 397005744}
+  amountJoined: 0
 --- !u!114 &1574979669
 MonoBehaviour:
   m_ObjectHideFlags: 0

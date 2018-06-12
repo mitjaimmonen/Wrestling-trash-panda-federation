@@ -7,8 +7,12 @@ public class Avatars : MonoBehaviour {
 	public Mesh[] avatarMeshes = new Mesh[4];
 	public MeshFilter[] avatarMeshFilters = new MeshFilter[4];
 
-	int [] indexes = new int[4];
+	public int [] indexes = new int[4];
 
+    public int meshNumber (int playerNumber)
+    {
+        return indexes[playerNumber];
+    }
 
 	void Awake()
 	{
@@ -26,5 +30,7 @@ public class Avatars : MonoBehaviour {
 			indexes[playerNumber] = 3;
 		avatarMeshFilters[playerNumber].mesh = avatarMeshes[indexes[playerNumber]];
 	}
+
+    
 
 }

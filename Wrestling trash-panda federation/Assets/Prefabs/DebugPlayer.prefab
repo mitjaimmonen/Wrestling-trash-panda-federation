@@ -66,7 +66,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1941792499283332}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.06, y: 4.4, z: 7.55}
+  m_LocalPosition: {x: -6.39, y: 4.4, z: 40.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4102248301679956}
@@ -148,22 +148,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerNumber: 0
   meshNumber: 0
+  playerData:
+    playerIndex: 0
+    gamepadIndex: 0
+    meshNumber: 0
   modelPrefabs:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  maxHealth: 0
+  playerCollider: {fileID: 0}
+  takeDamageParticles: {fileID: 0}
   movementSpeed: 0
   movementDeadzone: 0.05
   rotationDeadzone: 0.05
-  playerCollider: {fileID: 0}
-  takeDamageParticles: {fileID: 0}
-  maxHealth: 0
   damageSound: 
   deathSound: 
   getKnockedOutBitchSound: 
+  chargeTime: 0.1
+  hitTime: 0.1
   hasWeapon: 0
+  weaponCharging: 0
   weaponCharged: 0
+  isGrabbing: 0
   isPushing: 0
   isBlocking: 0
   isHitting: 0

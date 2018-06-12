@@ -7,6 +7,8 @@ public class Player : MonoBehaviour {
 
 	public int playerNumber;
 	public int meshNumber;
+    public Playerdata playerData;
+
 	[Tooltip("List of player skins (prefabs). Player chooses which one gets instantiated at main menu joining.")]
 	public GameObject[] modelPrefabs = new GameObject[4];
 
@@ -59,6 +61,14 @@ public class Player : MonoBehaviour {
 
      bool destroying;
 
+    //public Player(Playerdata _playerData)
+    //{
+    //    playerData = _playerData;
+
+    //    playerNumber = playerData.playerIndex;
+    //    meshNumber = playerData.meshNumber;
+
+    //}
 
     private void Awake()
     {

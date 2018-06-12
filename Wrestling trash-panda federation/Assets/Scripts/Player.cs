@@ -38,15 +38,14 @@ public class Player : MonoBehaviour {
     #region Actions data
         public float chargeTime = 0.1f;
         public float hitTime = 0.1f;
-        [HideInInspector]public bool hasWeapon = false;
-        [HideInInspector]public bool weaponCharging = false;
-        [HideInInspector]public bool weaponCharged = false;
-        [HideInInspector]public bool isGrabbing = false;
-        [HideInInspector]public bool isPushing = false;
-        [HideInInspector]public bool isBlocking = false;
-        [HideInInspector]public bool isHitting = false;
-        [HideInInspector]public bool leftHand = false;
-        [HideInInspector]public Weapon currentWeapon;
+        public bool weaponCharging = false;
+        public bool weaponCharged = false;
+        public bool isGrabbing = false;
+        public bool isPushing = false;
+        public bool isBlocking = false;
+        public bool isHitting = false;
+        public bool leftHand = false;
+        public Weapon currentWeapon;
 
 
 
@@ -80,6 +79,22 @@ public class Player : MonoBehaviour {
     void Update()
     {
 
+    }
+
+    void OnGUI()
+    {
+        if (GetComponent<PlayerDebug>())
+        {
+            string text = "Boolean States:\n";
+            text += string.Format("IsBlocking: {0}\n", isBlocking);
+            text += string.Format("isGrabbing: {0}\n", isGrabbing);
+            text += string.Format("IsPushing: {0}\n", isPushing);
+            text += string.Format("weaponCharging: {0}, weaponcharged: {1}, chargeTime: {2}\n", weaponCharging, weaponCharged, chargeTime);
+            text += string.Format("CurrentWEapon: {1}\n",currentWeapon);
+            text += string.Format("isHitting: {0}, leftHand: {1}, hitTime {2}\n", isHitting,leftHand, hitTime);
+            GUI.Label(new Rect(0, 0, Screen.width, Screen.height), text);
+
+        }
     }
 
     public void HandleInput(GamePadState state, GamePadState prevState)
@@ -149,13 +164,18 @@ public class Player : MonoBehaviour {
         if (!isGrabbing)
         {
             //Charging weapon if hasWeapon and pushing if !hasWeapon
-            if (!isHitting && !isPushing && (state.Buttons.RightShoulder == ButtonState.Pressed && state.Buttons.LeftShoulder == ButtonState.Pressed))
+            if (!isHitting && !isPushing && state.Buttons.RightShoulder == ButtonState.Pressed && state.Buttons.LeftShoulder == ButtonState.Pressed && (prevState.Buttons.RightShoulder == ButtonState.Released || prevState.Buttons.LeftShoulder == ButtonState.Released))
             {
                 //Every frame
                 Block();
             }
+            if (isBlocking && state.Buttons.RightShoulder == ButtonState.Released && state.Buttons.LeftShoulder == ButtonState.Released)
+            {
+                //Once
+                EndBlock();
+            }
 
-            if (!isHitting && !weaponCharging && !weaponCharged && state.Triggers.Left > 0.2f && state.Triggers.Right > 0.2f)
+            if (!isHitting && !weaponCharging && !weaponCharged && state.Triggers.Left > 0.2f && state.Triggers.Right > 0.2f && (prevState.Triggers.Left < 0.2f || prevState.Triggers.Right < 0.2f))
             {
                 //Every frame
                 Push();
@@ -167,13 +187,13 @@ public class Player : MonoBehaviour {
 
             if (!isPushing && prevState.Buttons.RightShoulder == ButtonState.Released && state.Buttons.RightShoulder == ButtonState.Pressed && state.Buttons.LeftShoulder == ButtonState.Released)
             {
-                leftHand = true;
+                leftHand = false;
                 Hit(); //Hit with HAND
             }
 
             if (!isPushing && prevState.Buttons.LeftShoulder == ButtonState.Released && state.Buttons.LeftShoulder == ButtonState.Pressed && state.Buttons.RightShoulder == ButtonState.Released)
             {
-                leftHand = false;
+                leftHand = true;
                 Hit(); //Hit with HAND
             }
 
@@ -186,19 +206,20 @@ public class Player : MonoBehaviour {
                 Grab();
             }
         }
-        else //isGrabbing == true
+        else if (isGrabbing)
         {
-            if ((state.Buttons.RightShoulder == ButtonState.Pressed && state.Buttons.LeftShoulder == ButtonState.Pressed)
-                ||(state.Triggers.Left > 0.2f && state.Triggers.Right > 0.2f))
+            if (state.Triggers.Left > 0.2f && state.Triggers.Right > 0.2f)
             {
-                if (hasWeapon)
-                {
-                    if (currentWeapon && weaponCharged)
-                        Hit(); //Hits with weapon
-                }
-                else //Grabbing player
+                if (currentWeapon && !weaponCharging && !weaponCharged && !isHitting) //Has weapon
+                    Charge();
+                else if (!currentWeapon) //Grabbing player
                     EndGrab();
             }
+            if(currentWeapon && weaponCharged && (state.Triggers.Left < 0.2f && state.Triggers.Right < 0.2f))
+            {
+                Hit(); //Hits with weapon
+            }
+            
         }
 
 
@@ -221,31 +242,29 @@ public class Player : MonoBehaviour {
 
     void Charge()
     {
-        if (hasWeapon && currentWeapon && !weaponCharging)
+        if (currentWeapon && !weaponCharging)
         {
             weaponCharging = true;
-            Invoke("SetCharged", chargeTime);
-
+            Invoke("SetCharged", currentWeapon.chargeTime);
         }
     }
     void SetCharged() //Invoked from Charge()
     {
         weaponCharged = true;
+        weaponCharging = false;
     }
 
     void Hit()
     {
-        if (hasWeapon)
+        if (currentWeapon && weaponCharged)
         {
-            if (currentWeapon && weaponCharged)
-            {
                 //Weapon hits
                 isHitting = true;
+                weaponCharged = false;
                 Invoke("EndHit", currentWeapon.hitTime);
                 Invoke("EndGrab", currentWeapon.hitTime);
-            }
         }
-        else
+        else if (!currentWeapon)
         {
             isHitting = true;
             //if lefthand ->    hit with left hand
@@ -262,11 +281,11 @@ public class Player : MonoBehaviour {
 
     void Push()
     {
-
+        isPushing = true;
     }
     void EndPush()
     {
-
+        isPushing = false;
     }
 
     void Block()
@@ -275,7 +294,7 @@ public class Player : MonoBehaviour {
     }
     void EndBlock()
     {
-
+        isBlocking = false;
     }
     void Grab()
     {
@@ -285,17 +304,19 @@ public class Player : MonoBehaviour {
             //Move it to hand bone
             //Assign as currentWeapon
             //Set animation speed (variable maybe in Weapon)
-            //hasWeapon = true;
         
         //if another player
             //Give other player "grabbedBuff" to make its actions disabled
-            isGrabbing = true;
+        
+        
+        isGrabbing = true;
 
     }
     void EndGrab()
     {
         //Detach enemy from bone
-        //Throw enemy with physics force
+        //Throw enemy/weapon with physics force
+        currentWeapon = null;
         isGrabbing = false;
     }
 

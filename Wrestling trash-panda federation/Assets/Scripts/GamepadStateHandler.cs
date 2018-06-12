@@ -80,7 +80,7 @@ public class GamepadStateHandler : MonoBehaviour {
 				continue;
 				
 			if (inputHandler)
-				inputHandler.HandleInput(playerGamepadData, i);
+				playerGamepadData[i] = inputHandler.HandleInput(playerGamepadData[i]);
 
 		}
     }

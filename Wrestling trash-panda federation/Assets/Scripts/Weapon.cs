@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour {
 
-	bool oneTimeUse;
-	bool breakable;
-	float breakForce;
-	float damage;
+	public float damage;
+	public float chargeTime;
+	public float hitTime;
+	public bool oneTimeUse;
+	public bool breakable;
+	public float breakForce;
 
 	// Use this for initialization
 	void Start () {

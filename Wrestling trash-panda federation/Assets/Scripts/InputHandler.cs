@@ -18,7 +18,7 @@ public class InputHandler : MonoBehaviour {
 	{
 		if (stateHandler.gamestate == GameState.menu)
 		{
-			HandleMenuInputs(gamepadData);
+			gamepadData = HandleMenuInputs(gamepadData);
 		}
 		if (stateHandler.gamestate == GameState.game)
 		{
@@ -38,7 +38,7 @@ public class InputHandler : MonoBehaviour {
 	}
 	
 
-	void HandleMenuInputs(PlayerGamepadData gamepadData)
+	PlayerGamepadData HandleMenuInputs(PlayerGamepadData gamepadData)
 	{
 		//Handle player (gamepad) activation - check if Y-button was pressed in this gamepad in this frame
 		if (gamepadData.prevState.Buttons.Y == ButtonState.Released && gamepadData.state.Buttons.Y == ButtonState.Pressed)
@@ -115,6 +115,7 @@ public class InputHandler : MonoBehaviour {
 			if (stateHandler.menuControl.avatars)
 				stateHandler.menuControl.avatars.ChangeAvatar(gamepadData.playerIndex, -1);
 		}
+		return gamepadData;
 	}
 
 

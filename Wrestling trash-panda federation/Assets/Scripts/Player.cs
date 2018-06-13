@@ -156,8 +156,8 @@ public class Player : MonoBehaviour
     {
         moveAxisH = state.ThumbSticks.Left.X;
         moveAxisV = state.ThumbSticks.Left.Y;
-        Vector3 input = new Vector3(moveAxisH,0, moveAxisV);
-        Vector3 newVelocity = new Vector3(0, rb.velocity.y, 0);
+        Vector2 input = new Vector2(moveAxisH, moveAxisV);
+        Vector2 newVelocity = Vector2.zero;
         // animControl.SetVerticalMagnitude(moveAxisH);
 
         if (input.magnitude > movementDeadzone)
@@ -167,16 +167,17 @@ public class Player : MonoBehaviour
             // input.z = input.z != 0 && input.z < 0 ? input.z + movementDeadzone : input.z;
             // input.z = input.z != 0 && input.z > 0 ? input.z - movementDeadzone : input.z;
             newVelocity = input * movementSpeed * Time.fixedDeltaTime * 100f;
+                
+            if (newVelocity.magnitude > maxSpeed)
+                newVelocity = newVelocity.normalized * maxSpeed;
+
+            rb.velocity = new Vector3(newVelocity.x, rb.velocity.y, newVelocity.y);
         }
         else
         {
-            newVelocity.x *= 0.1f * Time.fixedDeltaTime;
+            rb.velocity = new Vector3(rb.velocity.x *0.05f,rb.velocity.y, rb.velocity.z*0.05f);
         }
 
-        if (newVelocity.magnitude > maxSpeed)
-            rb.velocity = newVelocity.normalized * maxSpeed;
-        else
-            rb.velocity = newVelocity;
     }
     void HandleRotating(GamePadState state)
     {

@@ -86,7 +86,7 @@ public class StateHandler : MonoBehaviour
         if (gamestate == GameState.game)
         {
             if (LeftPlayers().Count < 2 || roundManager.TimeLeft() <= 0)
-            {
+            {                
                 roundManager.EndRound(LeftPlayers());
             }
 
@@ -176,6 +176,7 @@ public class StateHandler : MonoBehaviour
         foreach (GameObject p in players)
         {
             p.GetComponent<Player>().TransportToStart();
+            p.SetActive(true);
         }
     }
 
@@ -198,4 +199,18 @@ public class StateHandler : MonoBehaviour
             playersDatas.Add(temp);
         }
     }
+
+    #region Getters
+
+    public int PlayerCount()
+    {
+        return players.Count;
+    }
+
+    public int Winner()
+    {
+        return roundManager.GetWinner();
+    }
+
+    #endregion
 }

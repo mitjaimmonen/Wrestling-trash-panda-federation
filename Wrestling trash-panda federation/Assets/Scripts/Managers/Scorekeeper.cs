@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Scorekeeper {
-
+public class Scorekeeper
+{
     public int[] scoreArray;
+
+    int winner = 4;
+    bool tied = false;
+    public int highScore = 0;
 
     public int PlayerScore(int playerNum)
     {
         return scoreArray[playerNum];
     }
 
-   public Scorekeeper(int playerCount)
+    public Scorekeeper(int playerCount)
     {
         scoreArray = new int[playerCount];
 
@@ -30,5 +34,46 @@ public class Scorekeeper {
     {
         scoreArray = null;
     }
-	
+
+    public void OrderScore()
+    {
+        
+
+        for (int i = 0; i < scoreArray.Length; i++)
+        {
+            if (scoreArray[i] == highScore)
+            {
+                tied = true;
+                winner = 5;
+            }
+
+            else if (scoreArray[i] > highScore)
+            {
+                highScore = scoreArray[i];
+                tied = false;
+                winner = i;
+            }
+
+
+        }
+    }
+
+    public int ReturnWinner()
+    {
+        OrderScore();
+        return winner;
+    }
+
+    public bool Tied()
+    {
+        OrderScore();
+        return tied;
+
+    }
+
+    public int ReturnHighScore()
+    {
+        OrderScore();
+        return highScore;
+    }
 }

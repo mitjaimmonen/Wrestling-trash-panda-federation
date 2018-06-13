@@ -6,6 +6,7 @@ TagManager:
   tags:
   - GameMaster
   - DeathCarpet
+  - FlashingPanel
   layers:
   - Default
   - TransparentFX
@@ -17,7 +18,7 @@ TagManager:
   - 
   - PostProcessing
   - Player
-  - 
+  - Floor
   - 
   - 
   - 

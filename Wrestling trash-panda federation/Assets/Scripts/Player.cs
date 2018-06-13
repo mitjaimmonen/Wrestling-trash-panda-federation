@@ -427,4 +427,10 @@ public class Player : MonoBehaviour
         }
 
     }
+
+    public void TakeOut()
+    {
+        //DIE()???
+        gameObject.SetActive(false);
+    }
 }

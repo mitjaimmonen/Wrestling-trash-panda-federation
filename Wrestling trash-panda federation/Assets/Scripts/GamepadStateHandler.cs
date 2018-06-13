@@ -11,8 +11,8 @@ public struct PlayerGamepadData
 
 	public GamePadState state; //Button states etc
 	public GamePadState prevState; //Button states etc from last frame
-	public int gamepadIndex; //Each gamepad gets assigned a number
-	public int playerIndex; //Each player gets assign
+	public PlayerIndex gamepadPlayerIndex; //Each gamepad gets assigned a number
+	public int characterIndex; //Each player gets assign
 	public bool active; //When joined game, gamepad becomes active
 
 }
@@ -56,8 +56,8 @@ public class GamepadStateHandler : MonoBehaviour {
 			PlayerGamepadData gamepad = new PlayerGamepadData();
 			gamepad.state = GamePad.GetState(testPlayerIndex);
 			gamepad.prevState = gamepad.state;
-			gamepad.gamepadIndex = i;
-			gamepad.playerIndex = -1;
+			gamepad.gamepadPlayerIndex = testPlayerIndex;
+			gamepad.characterIndex = -1;
 			gamepad.active = false;
 
 			playerGamepadData[i] = gamepad;
@@ -74,7 +74,7 @@ public class GamepadStateHandler : MonoBehaviour {
 			//Save old state for button press checking
        		playerGamepadData[i].prevState = playerGamepadData[i].state;
 			//Get current state of gamepad (all of its buttonstates)
-        	playerGamepadData[i].state = GamePad.GetState((PlayerIndex)playerGamepadData[i].gamepadIndex);
+        	playerGamepadData[i].state = GamePad.GetState(playerGamepadData[i].gamepadPlayerIndex);
 
 			if (!playerGamepadData[i].state.IsConnected)
 				continue;
@@ -89,11 +89,6 @@ public class GamepadStateHandler : MonoBehaviour {
 		//Go through all gamepads
 		for (int i = 0; i < playerGamepadData.Length; i++)
 		{
-			// //Save old state for button press checking
-       		// playerGamepadData[i].prevState = playerGamepadData[i].state;
-			// //Get current state of gamepad (all of its buttonstates)
-        	// playerGamepadData[i].state = GamePad.GetState((PlayerIndex)playerGamepadData[i].gamepadIndex);
-
 			if (!playerGamepadData[i].state.IsConnected)
 				continue;
 				
@@ -115,7 +110,7 @@ public class GamepadStateHandler : MonoBehaviour {
 
 			text += "Use left stick to turn the cube, hold A to change color\n";
 			text += string.Format("IsConnected {0} Packet #{1} Active {2}\n", playerGamepadData[i].state.IsConnected, playerGamepadData[i].state.PacketNumber, playerGamepadData[i].active);
-			text += string.Format("\tTriggers {0} {1} {2}\n", playerGamepadData[i].state.Triggers.Left, playerGamepadData[i].state.Triggers.Right, (PlayerIndex)playerGamepadData[i].gamepadIndex);
+			text += string.Format("\tTriggers {0} {1} {2}\n", playerGamepadData[i].state.Triggers.Left, playerGamepadData[i].state.Triggers.Right, (PlayerIndex)playerGamepadData[i].gamepadPlayerIndex);
 			// text += string.Format("\tD-Pad {0} {1} {2} {3}\n", gamepads[i].state.DPad.Up, gamepads[i].state.DPad.Right, gamepads[i].state.DPad.Down, gamepads[i].state.DPad.Left);
 			// text += string.Format("\tButtons Start {0} Back {1} Guide {2}\n", gamepads[i].state.Buttons.Start, gamepads[i].state.Buttons.Back, gamepads[i].state.Buttons.Guide);
 			// text += string.Format("\tButtons LeftStick {0} RightStick {1} LeftShoulder {2} RightShoulder {3}\n", gamepads[i].state.Buttons.LeftStick, gamepads[i].state.Buttons.RightStick, gamepads[i].state.Buttons.LeftShoulder, gamepads[i].state.Buttons.RightShoulder);

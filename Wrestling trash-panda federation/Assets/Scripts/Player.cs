@@ -37,28 +37,32 @@ public class Player : MonoBehaviour
     public float rotationDeadzone = 0.05f;
     public float jumpForce;
     public LayerMask groundLayerMask;
+    public LayerMask enemyLayerMask;
 
 
 
     #region Actions data
-        public float chargeTime = 0.1f;
+        public int damage;
+        public float chargeTime = 0.0f;
         public float hitTime = 0.1f;
+        public float blockImpactForce = 5f;
+        float blockPushTimer; //Counts when blocking enemy push
 
-        public bool isGrabbed;
+        public bool isGrabbed = false;
         public bool isStunned = false;
-        
+        public bool isPushed = false;
 
-        public bool isMoving = false;
         public bool isGrounded = true;
         public bool weaponCharging = false;
         public bool weaponCharged = false;
         public bool isGrabbing = false;
         public bool isPushing = false;
+        public bool pushingEnemy = false;
         public bool isBlocking = false;
         public bool isHitting = false;
         public bool leftHand = false;
         public Weapon currentWeapon;
-
+        Player lastEnemyContact;
 
 
     #endregion
@@ -69,9 +73,11 @@ public class Player : MonoBehaviour
     float moveAxisH;
     float rotAxisV;
     float rotAxisH;
-    float distToGround;
+    float distToGround, distToFace;
     float globalGravity = 15f; //Change to affect falling speed
     float stunTime;
+    float groundTimer = 0;
+    bool allowGrounded = true;
 
     bool destroying;
 
@@ -84,39 +90,95 @@ public class Player : MonoBehaviour
 
     //}
 
+    bool IsPushingEnemy()
+    {
+        // pushingEnemy = Physics.Raycast(transform.position, transform.forward, distToFace + 0.2f, enemyLayerMask);
+        // pushingEnemy = Physics.CheckSphere(transform.position+ (transform.forward*(distToFace + 0.4f)), 0.3f, enemyLayerMask);
+        RaycastHit hit;
+        pushingEnemy = Physics.SphereCast(transform.position+ (transform.forward*(distToFace + 0.5f)), 0.5f, transform.forward, out hit, 0.1f, enemyLayerMask);
+        if (pushingEnemy)
+        {
+            lastEnemyContact = hit.collider.gameObject.GetComponentInParent<Player>();
+            if (lastEnemyContact)
+            {
+                lastEnemyContact.GetPushed(true, this);
+            }
+        }
+        else if (lastEnemyContact)
+        {
+            lastEnemyContact.GetPushed(false, this);
+        }
+        return pushingEnemy;
+    }
+
+    void GetPushed(bool pushState, Player enemy)
+    {
+        if (isPushed && !pushState && lastEnemyContact != null && enemy != lastEnemyContact)
+            return;
+        lastEnemyContact = enemy;
+        isPushed = pushState;
+        if (isPushed)
+        {
+            transform.forward = -enemy.transform.forward;
+            if (!isBlocking)
+                rb.velocity = enemy.rb.velocity.normalized * (maxSpeed*0.75f);
+            else
+                rb.velocity = enemy.rb.velocity.normalized * (maxSpeed*0.25f);
+
+        }
+    }
+
     private void Awake()
     {
         health = new Health(maxHealth);
         rb = GetComponent<Rigidbody>();
         Physics.gravity = -Vector3.up*globalGravity;
         distToGround = playerCollider.bounds.extents.y;
+        distToFace = playerCollider.bounds.extents.z;
         anim = GetComponentInChildren<Animator>();     
     }
     void FixedUpdate()
     {
-        isGrounded = Physics.Raycast(transform.position, -Vector3.up, distToGround + 0.1f, groundLayerMask);
+        isGrounded = allowGrounded ? Physics.Raycast(transform.position, -Vector3.up, distToGround + 0.1f, groundLayerMask) : false;
         anim.SetBool("isGrounded", isGrounded);
+        if (!isGrounded)
+        {
+            EndPush();
+            EndGrab();
+        }
         
     }
     void Update()
     {
         anim.SetBool("hasWeapon", currentWeapon!=null);
-    }
-    void OnGUI()
-    {
-        if (GetComponent<PlayerDebug>())
+        if (isPushed && isBlocking)
         {
-            string text = "Boolean States:\n";
-            text += string.Format("IsBlocking: {0}\n", isBlocking);
-            text += string.Format("isGrabbing: {0}\n", isGrabbing);
-            text += string.Format("IsPushing: {0}\n", isPushing);
-            text += string.Format("weaponCharging: {0}, weaponcharged: {1}, chargeTime: {2}\n", weaponCharging, weaponCharged, chargeTime);
-            text += string.Format("CurrentWEapon: {0}\n",currentWeapon);
-            text += string.Format("isHitting: {0}, leftHand: {1}, hitTime {2}\n", isHitting,leftHand, hitTime);
-            GUI.Label(new Rect(0, 0, Screen.width, Screen.height), text);
+            blockPushTimer += Time.deltaTime;
+            if (blockPushTimer > 1f)
+            {
+                //Create impact against pushing enemy
+                lastEnemyContact.isGrounded = false;
+                lastEnemyContact.allowGrounded = false;
+                lastEnemyContact.rb.velocity = (transform.forward*2 + Vector3.up*0.25f)*blockImpactForce;
+                lastEnemyContact.AddBuff(true, false, 0.5f);
+                Debug.Log(lastEnemyContact.isPushing + ", " + lastEnemyContact.isGrounded + ", " + lastEnemyContact.rb.velocity);
+                isPushed = false;
+            }
+        }
+        else
+            blockPushTimer = 0;
 
+        if (!allowGrounded)
+        {
+            groundTimer += Time.deltaTime;
+            if (groundTimer > 0.35f)
+            {
+                allowGrounded = true;
+                groundTimer = 0;
+            }
         }
     }
+
     public void TransportToStart()
     {
         transform.position = spawnPoints[playerNumber].position;
@@ -129,7 +191,7 @@ public class Player : MonoBehaviour
         {
             if (!isStunned)
             {
-                if (isGrabbed)
+                if (isGrabbed || isPushed)
                 {
                     HandleActions(state, prevState);
                 }
@@ -151,55 +213,76 @@ public class Player : MonoBehaviour
     {
         if (health.isAlive())
         {
-            if (!isStunned)
-            {
-                HandleMove(state);
-                
-            }
+            HandleMove(state);
         }
     }
 
     void HandleMove(GamePadState state)
     {
+        
         moveAxisH = state.ThumbSticks.Left.X;
         moveAxisV = state.ThumbSticks.Left.Y;
         Vector2 input = new Vector2(moveAxisH, moveAxisV);
         Vector2 newVelocity = Vector2.zero;
         // animControl.SetVerticalMagnitude(moveAxisH);
 
-        if (input.magnitude > movementDeadzone)
+        if (!isPushing )
         {
-            // input.x = input.x != 0 && input.x < 0 ? input.x + movementDeadzone : input.x;
-            // input.x = input.x != 0 && input.x > 0 ? input.x - movementDeadzone : input.x;
-            // input.z = input.z != 0 && input.z < 0 ? input.z + movementDeadzone : input.z;
-            // input.z = input.z != 0 && input.z > 0 ? input.z - movementDeadzone : input.z;
-            newVelocity = input * movementSpeed * Time.fixedDeltaTime * 100f;
-                
-            if (newVelocity.magnitude > maxSpeed)
-                newVelocity = newVelocity.normalized * maxSpeed;
+            if (input.magnitude > movementDeadzone && !isStunned)
+            {
+                // input.x = input.x != 0 && input.x < 0 ? input.x + movementDeadzone : input.x;
+                // input.x = input.x != 0 && input.x > 0 ? input.x - movementDeadzone : input.x;
+                // input.z = input.z != 0 && input.z < 0 ? input.z + movementDeadzone : input.z;
+                // input.z = input.z != 0 && input.z > 0 ? input.z - movementDeadzone : input.z;
+                newVelocity = input * movementSpeed * Time.fixedDeltaTime * 100f;
+                    
+                if (newVelocity.magnitude > maxSpeed)
+                    newVelocity = newVelocity.normalized * maxSpeed;
 
-            rb.velocity = new Vector3(newVelocity.x, rb.velocity.y, newVelocity.y);
+                rb.velocity = new Vector3(newVelocity.x, rb.velocity.y, newVelocity.y);
+            }
+            else
+            {
+                //Stop movement
+                float multiplier = isGrounded ? 0.2f : 1f;
+                rb.velocity = new Vector3(rb.velocity.x *multiplier,rb.velocity.y, rb.velocity.z*multiplier);
+            }
+
         }
-        else
+        else if (isPushing && !isStunned)
         {
-            rb.velocity = new Vector3(rb.velocity.x *0.05f,rb.velocity.y, rb.velocity.z*0.05f);
-        }
+            Vector3 euler = new Vector3(0, Mathf.Atan2(state.ThumbSticks.Left.X, state.ThumbSticks.Left.Y) * 180 / Mathf.PI, 0);
+            if (euler.magnitude > 0.2f)
+                transform.rotation = Quaternion.Lerp(Quaternion.Euler(transform.eulerAngles), Quaternion.Euler(euler), Time.deltaTime);
+            
+            Vector3 vel = transform.forward;
 
+            if (!IsPushingEnemy())
+                vel *= maxSpeed*1.25f;
+            else
+                vel = lastEnemyContact.rb.velocity;
+
+            rb.velocity = new Vector3(vel.x, rb.velocity.y,vel.z);
+        }
     }
     void HandleRotating(GamePadState state)
     {
-        rotAxisH = state.ThumbSticks.Right.X;
-        rotAxisV = state.ThumbSticks.Right.Y;
-
-        if (rotAxisH > rotationDeadzone || rotAxisH < -rotationDeadzone || rotAxisV > rotationDeadzone || rotAxisV < -rotationDeadzone)
+        if (!isPushing)
         {
-            transform.eulerAngles = new Vector3(0, Mathf.Atan2(rotAxisH, rotAxisV) * 180 / Mathf.PI, 0);
+            rotAxisH = state.ThumbSticks.Right.X;
+            rotAxisV = state.ThumbSticks.Right.Y;
+
+            if (rotAxisH > rotationDeadzone || rotAxisH < -rotationDeadzone || rotAxisV > rotationDeadzone || rotAxisV < -rotationDeadzone)
+            {
+                transform.eulerAngles = new Vector3(0, Mathf.Atan2(rotAxisH, rotAxisV) * 180 / Mathf.PI, 0);
+            }
         }
+
     }
     void HandleActions(GamePadState state, GamePadState prevState)
     {
         // Detect if a button was pressed this frame
-        if (!isGrabbed)
+        if (!isGrabbed && !isPushed)
         {
             if (!isGrabbing)
             {
@@ -221,7 +304,7 @@ public class Player : MonoBehaviour
                     EndBlock();
                 }
 
-                if (!isHitting && !weaponCharging && !weaponCharged && state.Triggers.Left > 0.2f && state.Triggers.Right > 0.2f && (prevState.Triggers.Left < 0.2f || prevState.Triggers.Right < 0.2f))
+                if (!isHitting && !weaponCharging && !weaponCharged && isGrounded && state.Triggers.Left > 0.2f && state.Triggers.Right > 0.2f && (prevState.Triggers.Left < 0.2f || prevState.Triggers.Right < 0.2f))
                 {
                     //Every frame
                     Push();
@@ -264,6 +347,15 @@ public class Player : MonoBehaviour
                     Hit(); //Hits with weapon
                 }
                 
+            }
+        }
+        else if (isPushed)
+        {
+            //Charging weapon if hasWeapon and pushing if !hasWeapon
+            if (state.Buttons.RightShoulder == ButtonState.Pressed && state.Buttons.LeftShoulder == ButtonState.Pressed && (prevState.Buttons.RightShoulder == ButtonState.Released || prevState.Buttons.LeftShoulder == ButtonState.Released))
+            {
+                //Every frame
+                Block();
             }
         }
 
@@ -312,30 +404,50 @@ public class Player : MonoBehaviour
 
     void Hit()
     {
-        if (currentWeapon && weaponCharged)
+        if (currentWeapon && weaponCharged && !isHitting)
         {
                 //Weapon hits
                 isHitting = true;
                 weaponCharged = false;
                 anim.SetBool("isHitting", true);
                 anim.SetBool("isCharged", false);
+                currentWeapon.hitCollider.enabled = true;
                 Invoke("EndHit", currentWeapon.hitTime);
                 Invoke("EndGrab", currentWeapon.hitTime);
         }
-        else if (!currentWeapon)
+        else if (!currentWeapon && !isHitting)
         {
             isHitting = true;
             anim.SetBool("isHitting", true);
             //if lefthand ->    hit with left hand
             //else ->           hit with right hand
+            Invoke("CheckHit", hitTime/2);
             Invoke("EndHit", hitTime);
         }
 
         weaponCharged = false;
     }
+    void CheckHit()
+    {
+        Debug.Log("Check hit");
+        RaycastHit[] hits = Physics.SphereCastAll(transform.position + (transform.forward *(distToFace+0.5f)), 0.5f, transform.forward, 0.2f, enemyLayerMask);
+        List<Player> hitPlayers = new List<Player>();
+        foreach(var hit in hits)
+        {
+            Player enemy = hit.collider.GetComponentInParent<Player>();
+            if (enemy && !hitPlayers.Contains(enemy) && enemy != this)
+            {
+                hitPlayers.Add(enemy);
+                enemy.GetHit(damage);
+                Debug.Log("Dealt damage: " + damage + " to enemy: " + enemy);
+            }
+        }
+    }
     void EndHit() //Invoked from Hit()
     {
         anim.SetBool("isHitting", false);
+        if (currentWeapon)
+            currentWeapon.hitCollider.enabled = false;
         isHitting = false;
     }
 
@@ -348,6 +460,8 @@ public class Player : MonoBehaviour
     {
         anim.SetBool("isPushing", false);
         isPushing = false;
+        if (lastEnemyContact)
+            lastEnemyContact.GetPushed(false, this);
     }
 
     void Block()
@@ -371,7 +485,7 @@ public class Player : MonoBehaviour
         
         //if another player
             //Give other player "isGrabbed" to make its actions disabled
-        
+        currentWeapon.player = this;
         anim.SetBool("isGrabbing", true);
         isGrabbing = true;
 
@@ -470,5 +584,23 @@ public class Player : MonoBehaviour
             destroying = true;
         }
 
+    }
+
+
+
+    void OnGUI()
+    {
+        if (GetComponent<PlayerDebug>())
+        {
+            string text = "Boolean States:\n";
+            text += string.Format("IsBlocking: {0}\n", isBlocking);
+            text += string.Format("isGrabbing: {0}\n", isGrabbing);
+            text += string.Format("IsPushing: {0}\n", isPushing);
+            text += string.Format("weaponCharging: {0}, weaponcharged: {1}, chargeTime: {2}\n", weaponCharging, weaponCharged, chargeTime);
+            text += string.Format("CurrentWEapon: {0}\n",currentWeapon);
+            text += string.Format("isHitting: {0}, leftHand: {1}, hitTime {2}\n", isHitting,leftHand, hitTime);
+            GUI.Label(new Rect(0, 0, Screen.width, Screen.height), text);
+
+        }
     }
 }

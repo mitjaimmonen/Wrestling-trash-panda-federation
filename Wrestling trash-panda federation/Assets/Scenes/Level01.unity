@@ -461,6 +461,11 @@ Prefab:
       propertyPath: spawnPoints.Array.data[3]
       value: 
       objectReference: {fileID: 1351812536}
+    - target: {fileID: 114863283421146642, guid: fbe36c935ecb7c7458a1d97f62882ce9,
+        type: 2}
+      propertyPath: overrideInputs
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: fbe36c935ecb7c7458a1d97f62882ce9, type: 2}
   m_IsPrefabParent: 0
@@ -518,11 +523,6 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 114094120948674724, guid: fbe36c935ecb7c7458a1d97f62882ce9,
-        type: 2}
-      propertyPath: spawnPoints.Array.size
-      value: 4
-      objectReference: {fileID: 0}
     - target: {fileID: 4336502292828558, guid: fbe36c935ecb7c7458a1d97f62882ce9, type: 2}
       propertyPath: m_LocalPosition.x
       value: -3.3549762
@@ -555,18 +555,6 @@ Prefab:
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 1336175932758766, guid: fbe36c935ecb7c7458a1d97f62882ce9, type: 2}
-      propertyPath: m_Name
-      value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 1336175932758766, guid: fbe36c935ecb7c7458a1d97f62882ce9, type: 2}
-      propertyPath: m_TagString
-      value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 1004454438494392, guid: fbe36c935ecb7c7458a1d97f62882ce9, type: 2}
-      propertyPath: m_TagString
-      value: Untagged
-      objectReference: {fileID: 0}
     - target: {fileID: 114094120948674724, guid: fbe36c935ecb7c7458a1d97f62882ce9,
         type: 2}
       propertyPath: spawnPoints.Array.data[0]
@@ -589,13 +577,8 @@ Prefab:
       objectReference: {fileID: 1351812536}
     - target: {fileID: 114094120948674724, guid: fbe36c935ecb7c7458a1d97f62882ce9,
         type: 2}
-      propertyPath: playerNumber
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 114094120948674724, guid: fbe36c935ecb7c7458a1d97f62882ce9,
-        type: 2}
-      propertyPath: playerData.playerIndex
-      value: 2
+      propertyPath: blockImpactForce
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: fbe36c935ecb7c7458a1d97f62882ce9, type: 2}
@@ -996,6 +979,30 @@ Transform:
   m_PrefabParentObject: {fileID: 4336502292828558, guid: fbe36c935ecb7c7458a1d97f62882ce9,
     type: 2}
   m_PrefabInternal: {fileID: 1349477659}
+--- !u!1 &1518151599 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1666250203973400, guid: fbe36c935ecb7c7458a1d97f62882ce9,
+    type: 2}
+  m_PrefabInternal: {fileID: 570929314}
+--- !u!114 &1518151601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1518151599}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7620a3b50554b194cb8d24945acfd4e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  hitCollider: {fileID: 0}
+  damage: 0
+  chargeTime: 0
+  hitTime: 0
+  oneTimeUse: 0
+  breakable: 0
+  breakForce: 0
 --- !u!1 &1884830912
 GameObject:
   m_ObjectHideFlags: 0

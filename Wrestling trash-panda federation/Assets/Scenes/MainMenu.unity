@@ -741,7 +741,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4b23483c64b04245ab2457f1f017acc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startTime: 99
+  startTime: 5
   OnRoundStart:
     m_PersistentCalls:
       m_Calls:
@@ -774,7 +774,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gamestate: 0
   playerPrefab: {fileID: 0}
-  roundTest: 0
+  roundTest: 1
   menuControl: {fileID: 0}
   gamepadStateHandler: {fileID: 0}
   roundManager: {fileID: 1310262160}

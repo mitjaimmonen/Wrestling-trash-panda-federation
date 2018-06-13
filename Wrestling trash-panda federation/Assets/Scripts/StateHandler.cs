@@ -85,15 +85,16 @@ public class StateHandler : MonoBehaviour
     {
         if (gamestate == GameState.game)
         {
-            if (roundManager.isOnRound)
+            if (LeftPlayers().Count < 2 || roundManager.TimeLeft() <= 0)
+            {
+                roundManager.EndRound(LeftPlayers());
+            }
+
+            else if (roundManager.isOnRound)
             {
                 roundManager.UpdateRound();
             }
 
-            else if (LeftPlayers().Count < 2 || roundManager.TimeLeft()<=0)
-            {
-                roundManager.EndRound(LeftPlayers());
-            }
         }
     }
 
@@ -111,7 +112,7 @@ public class StateHandler : MonoBehaviour
             gamestate = scene.buildIndex != 0 ? GameState.game : GameState.menu;
         }
         else
-        gamestate = scene.buildIndex == 1 ? GameState.game : GameState.menu;
+            gamestate = scene.buildIndex == 1 ? GameState.game : GameState.menu;
         Instantiate();
     }
 

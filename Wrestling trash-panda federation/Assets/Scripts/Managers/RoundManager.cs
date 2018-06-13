@@ -34,17 +34,18 @@ public class RoundManager : MonoBehaviour
         timer = 0;
         playersDead = 0;
         OnRoundStart.Invoke();
-       // StartCoroutine(Countdown(3));
+
+        StartCoroutine(Countdown(3));
+        
+
         isOnRound = true;
     }
 
     public void UpdateRound()
-    {
+    {        
         timer += Time.deltaTime;
-        Debug.Log("time left: " + TimeLeft());
+        
     }
-
-
 
     public void EndRound(List<GameObject> playersLeft)
     {
@@ -55,9 +56,11 @@ public class RoundManager : MonoBehaviour
             scoreKeeper.AddScore(1, p.GetComponent<Player>().playerNumber);
         }
 
-        if (roundNumber < 3 && isOnRound)
+        if (roundNumber < 3)
         {
             StartCoroutine(NextRound());
+            StartRound(roundNumber + 1);
+            Debug.Log("round " + roundNumber + 1);
         }
         else
         {
@@ -67,18 +70,18 @@ public class RoundManager : MonoBehaviour
 
     IEnumerator Countdown(float time)
     {
-        Time.timeScale = 0;
+        //players should not
         //show timer counting down
-        yield return new WaitForSeconds(time);
-        Time.timeScale = 1;
+        yield return new WaitForSeconds(3);
+        
     }
 
     IEnumerator NextRound()
     {
-        //score feedback
+        //score feedback        
         yield return new WaitForSeconds(2);
         //fade??           
-        StartRound(roundNumber + 1);
+        
     }
 
     IEnumerator EndTimer()

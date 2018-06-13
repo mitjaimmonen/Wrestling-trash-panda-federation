@@ -86,7 +86,7 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        TransportToStart();
+       
     }
 
     void Update()

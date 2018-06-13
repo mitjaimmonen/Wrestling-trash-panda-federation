@@ -13,6 +13,7 @@ public class MainMenuController : MonoBehaviour
     public Text countdownText;
     [HideInInspector] public bool[] ready = new bool[4];
     public Avatars avatars;
+    public bool roundTest;
 
     public int amountJoined = 0;
     int amountReady = 0;
@@ -23,6 +24,9 @@ public class MainMenuController : MonoBehaviour
     {
         for (int i = 0; i < ready.Length; i++)
             ready[i] = false;
+
+        //debug
+        roundTest = StateHandler.Instance.roundTest;
     }
 
     void Update()
@@ -58,7 +62,12 @@ public class MainMenuController : MonoBehaviour
         {
             //save the mesh info
             StateHandler.Instance.SavePlayerData(amountJoined, avatars);
-            LoadLevel("Level01");
+            if (roundTest)
+            {
+                LoadLevel("Level02");
+            }
+            else
+                LoadLevel("Level01");
         }
         countdownText.gameObject.SetActive(false);
         yield break;

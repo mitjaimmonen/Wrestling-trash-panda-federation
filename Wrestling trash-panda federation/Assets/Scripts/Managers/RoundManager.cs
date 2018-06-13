@@ -5,52 +5,59 @@ using UnityEngine.Events;
 
 public class RoundManager : MonoBehaviour
 {
-    private float time;
+    public float startTime = 99;
     private float timer;
     private int playersAtStart;
     private int playersDead;
+    private Scorekeeper scoreKeeper;
 
-    public UnityEvent OnRoundEnd;
+    public UnityEvent OnRoundStart;
     public bool isOnRound = false;
     public int roundNumber;
 
-    public int PlayersLeft()
-    {
-        return playersAtStart - playersDead;
-    }
 
     public float TimeLeft()
     {
-        return time - timer;
+        return startTime - timer;
     }
 
-    void StartRound(int _players, int roundNum)
+    public void InitializeRounds(int _players)
+    {
+        playersAtStart = _players;
+        scoreKeeper = new Scorekeeper(_players);
+        StartRound(1);
+    }
+
+    private void StartRound(int roundNum)
     {
         roundNumber = roundNum;
         timer = 0;
         playersDead = 0;
-        playersAtStart = _players;
+        OnRoundStart.Invoke();
+       // StartCoroutine(Countdown(3));
+        isOnRound = true;
     }
 
     public void UpdateRound()
     {
-        if (TimeLeft() > 1)
-        {
-            timer += Time.deltaTime;
-
-        }
-        else
-        {
-            EndRound();
-        }
+        timer += Time.deltaTime;
+        Debug.Log("time left: " + TimeLeft());
     }
 
-    void EndRound()
+
+
+    public void EndRound(List<GameObject> playersLeft)
     {
-        if (roundNumber < 3)
+        isOnRound = false;
+
+        foreach (GameObject p in playersLeft)
         {
-            StartCoroutine(NextRound())
-;
+            scoreKeeper.AddScore(1, p.GetComponent<Player>().playerNumber);
+        }
+
+        if (roundNumber < 3 && isOnRound)
+        {
+            StartCoroutine(NextRound());
         }
         else
         {
@@ -58,13 +65,20 @@ public class RoundManager : MonoBehaviour
         }
     }
 
+    IEnumerator Countdown(float time)
+    {
+        Time.timeScale = 0;
+        //show timer counting down
+        yield return new WaitForSeconds(time);
+        Time.timeScale = 1;
+    }
+
     IEnumerator NextRound()
     {
-        //add score
+        //score feedback
         yield return new WaitForSeconds(2);
-        //restore player's positions       
-        OnRoundEnd.Invoke();
-        StartRound(playersAtStart, roundNumber + 1);
+        //fade??           
+        StartRound(roundNumber + 1);
     }
 
     IEnumerator EndTimer()

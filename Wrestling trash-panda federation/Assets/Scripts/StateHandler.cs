@@ -31,6 +31,7 @@ public class StateHandler : MonoBehaviour
 
     public GameState gamestate = GameState.menu;
     public GameObject playerPrefab;
+    public bool roundTest;
 
     public delegate void onPlayersChosen();
 
@@ -44,17 +45,34 @@ public class StateHandler : MonoBehaviour
     List<Playerdata> playersDatas = new List<Playerdata>();
     List<GameObject> players = new List<GameObject>();
 
+    public List<GameObject> LeftPlayers()
+    {
+        List<GameObject> temp = new List<GameObject>();
+
+        foreach (GameObject p in players)
+        {
+            if (p.gameObject.activeSelf)
+            {
+                temp.Add(p);
+            }
+        }
+
+        return temp;
+    }
+
+
 
     // Use this for initialization
     void Awake()
     {
 
-        _instance = this;
 
         if (GameObject.FindGameObjectsWithTag("GameMaster").Length > 1)
         {
             Destroy(this.gameObject);
         }
+
+        _instance = this;
 
         DontDestroyOnLoad(this.gameObject);
         SceneManager.sceneLoaded += OnLevelLoaded;
@@ -71,6 +89,11 @@ public class StateHandler : MonoBehaviour
             {
                 roundManager.UpdateRound();
             }
+
+            else if (LeftPlayers().Count < 2 || roundManager.TimeLeft()<=0)
+            {
+                roundManager.EndRound(LeftPlayers());
+            }
         }
     }
 
@@ -83,6 +106,11 @@ public class StateHandler : MonoBehaviour
     void OnLevelLoaded(Scene scene, LoadSceneMode mode)
     {
         //Gets called on sceneload
+        if (roundTest)
+        {
+            gamestate = scene.buildIndex != 0 ? GameState.game : GameState.menu;
+        }
+        else
         gamestate = scene.buildIndex == 1 ? GameState.game : GameState.menu;
         Instantiate();
     }
@@ -107,6 +135,7 @@ public class StateHandler : MonoBehaviour
             SpawnPlayers();
             AttachControllers();
             roundManager.enabled = true;
+            roundManager.InitializeRounds(players.Count);
         }
     }
 

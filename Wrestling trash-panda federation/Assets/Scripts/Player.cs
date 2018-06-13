@@ -17,23 +17,28 @@ public class Player : MonoBehaviour
     public int maxHealth;
     public CapsuleCollider playerCollider;
     public GameObject takeDamageParticles;
-    public float movementSpeed;
-    [Range(0.01f, 0.99f), Tooltip("Deadzone for joystick movement (Left stick).")]
-    public float movementDeadzone = 0.05f;
-    [Range(0.01f, 0.99f), Tooltip("Deadzone for joystick rotation (Right stick).")]
-    public float rotationDeadzone = 0.05f;
 
 
     [FMODUnity.EventRef] public string damageSound;
     [FMODUnity.EventRef] public string deathSound;
     [FMODUnity.EventRef] public string getKnockedOutBitchSound;
 
-    protected Animator anim;
-
+    Animator anim;
     Health health;
     bool stunBuff = false;
     bool grabbedBuff = false;
     float buffTime;
+
+
+
+    Rigidbody rb;
+    public float maxSpeed;
+    public float movementSpeed;
+    [Range(0.01f, 0.99f), Tooltip("Deadzone for joystick movement (Left stick).")]
+    public float movementDeadzone = 0.05f;
+    [Range(0.01f, 0.99f), Tooltip("Deadzone for joystick rotation (Right stick).")]
+    public float rotationDeadzone = 0.05f;
+
 
 
     #region Actions data
@@ -73,6 +78,7 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         health = new Health(maxHealth);
+        rb = GetComponent<Rigidbody>();
 
         anim = GetComponentInChildren<Animator>();     
 
@@ -118,12 +124,10 @@ public class Player : MonoBehaviour
             {
                 if (grabbedBuff)
                 {
-                    HandleMove(state);
                     HandleActions(state, prevState);
                 }
                 else
                 {
-                    HandleMove(state);
                     HandleRotating(state);
                     HandleActions(state, prevState);
 
@@ -136,30 +140,43 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void HandleFixedInput(GamePadState state, GamePadState prevState)
+    {
+        if (health.isAlive())
+        {
+            if (!stunBuff)
+            {
+                HandleMove(state);
+                
+            }
+        }
+    }
+
     void HandleMove(GamePadState state)
     {
         moveAxisH = state.ThumbSticks.Left.X;
         moveAxisV = state.ThumbSticks.Left.Y;
-
+        Vector3 input = new Vector3(moveAxisH,0, moveAxisV);
+        Vector3 newVelocity = new Vector3(0, rb.velocity.y, 0);
         // animControl.SetVerticalMagnitude(moveAxisH);
 
-        if (moveAxisH > movementDeadzone || moveAxisH < -movementDeadzone)
+        if (input.magnitude > movementDeadzone)
         {
-            //Movement
-            float magnitude = moveAxisH < 0 ? moveAxisH + movementDeadzone : moveAxisH - movementDeadzone;
-            transform.position = Vector3.Lerp(transform.position, transform.position + Vector3.right * magnitude, Time.deltaTime * movementSpeed);
-            // animControl.SetVerticalMagnitude(moveAxisH);   
+            // input.x = input.x != 0 && input.x < 0 ? input.x + movementDeadzone : input.x;
+            // input.x = input.x != 0 && input.x > 0 ? input.x - movementDeadzone : input.x;
+            // input.z = input.z != 0 && input.z < 0 ? input.z + movementDeadzone : input.z;
+            // input.z = input.z != 0 && input.z > 0 ? input.z - movementDeadzone : input.z;
+            newVelocity = input * movementSpeed * Time.fixedDeltaTime * 100f;
         }
-        if (moveAxisV > movementDeadzone || moveAxisV < -movementDeadzone)
+        else
         {
-            float magnitude = moveAxisV < 0 ? moveAxisV + movementDeadzone : moveAxisV - movementDeadzone;
-            var cameraforw = Vector3.forward;
+            newVelocity.x *= 0.1f * Time.fixedDeltaTime;
+        }
 
-            cameraforw.y = 0;
-            cameraforw.Normalize();
-            transform.position = Vector3.Lerp(transform.position, transform.position + cameraforw * magnitude, Time.deltaTime * movementSpeed);
-            // animControl.SetVerticalMagnitude(moveAxisV);
-        }
+        if (newVelocity.magnitude > maxSpeed)
+            rb.velocity = newVelocity.normalized * maxSpeed;
+        else
+            rb.velocity = newVelocity;
     }
     void HandleRotating(GamePadState state)
     {

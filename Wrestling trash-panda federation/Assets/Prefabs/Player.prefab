@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4336502292828558}
   - component: {fileID: 114094120948674724}
   - component: {fileID: 54358313862365266}
+  - component: {fileID: 114863283421146642}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -71,7 +72,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1336175932758766}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.6249766, y: 5.4158087, z: 5.047097}
+  m_LocalPosition: {x: 4.6, y: 10.77, z: 1.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4804085120366668}
@@ -196,13 +197,13 @@ Rigidbody:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1336175932758766}
   serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_Mass: 5
+  m_Drag: 0.1
+  m_AngularDrag: 5
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 80
+  m_Interpolate: 1
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!65 &65121242915831764
 BoxCollider:
@@ -238,18 +239,23 @@ MonoBehaviour:
   - {fileID: 1855420981675932, guid: 441322e69789bb94199b02eaa3e200ce, type: 2}
   - {fileID: 1457154534494100, guid: 31229a1ef2515384dac627c883603dbf, type: 2}
   - {fileID: 1297491481204088, guid: 534acedd59183354b968e894e84d410a, type: 2}
+  spawnPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   maxHealth: 5
   playerCollider: {fileID: 136973623302659060}
   takeDamageParticles: {fileID: 0}
-  movementSpeed: 5
-  movementDeadzone: 0.05
-  rotationDeadzone: 0.05
   damageSound: 
   deathSound: 
   getKnockedOutBitchSound: 
-  chargeTime: 0.1
-  hitTime: 0.1
-  hasWeapon: 0
+  maxSpeed: 5
+  movementSpeed: 10
+  movementDeadzone: 0.05
+  rotationDeadzone: 0.05
+  chargeTime: 0.3
+  hitTime: 0.3
   weaponCharging: 0
   weaponCharged: 0
   isGrabbing: 0
@@ -258,6 +264,18 @@ MonoBehaviour:
   isHitting: 0
   leftHand: 0
   currentWeapon: {fileID: 0}
+--- !u!114 &114863283421146642
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1336175932758766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2c408b9746813408f12b34e7e59a97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overrideInputs: 0
 --- !u!136 &136973623302659060
 CapsuleCollider:
   m_ObjectHideFlags: 1

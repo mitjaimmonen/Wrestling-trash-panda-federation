@@ -84,6 +84,24 @@ public class GamepadStateHandler : MonoBehaviour {
 
 		}
     }
+	void FixedUpdate()
+	{
+		//Go through all gamepads
+		for (int i = 0; i < playerGamepadData.Length; i++)
+		{
+			// //Save old state for button press checking
+       		// playerGamepadData[i].prevState = playerGamepadData[i].state;
+			// //Get current state of gamepad (all of its buttonstates)
+        	// playerGamepadData[i].state = GamePad.GetState((PlayerIndex)playerGamepadData[i].gamepadIndex);
+
+			if (!playerGamepadData[i].state.IsConnected)
+				continue;
+				
+			if (inputHandler)
+				playerGamepadData[i] = inputHandler.HandleFixedInput(playerGamepadData[i]);
+
+		}
+	}
 
     void OnGUI()
     {

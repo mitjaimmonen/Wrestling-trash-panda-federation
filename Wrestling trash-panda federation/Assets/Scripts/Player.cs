@@ -11,6 +11,10 @@ public class Player : MonoBehaviour
     public Playerdata playerData;
     public SkinnedMeshRenderer skinnedMeshRenderer;
 
+    //for grabbing
+    public GameObject grabPoint;
+    public GameObject enemyGrabPoint;
+
     [Tooltip("List of player skins (prefabs). Player chooses which one gets instantiated at main menu joining.")]
     public GameObject[] modelPrefabs = new GameObject[4];
 
@@ -44,29 +48,32 @@ public class Player : MonoBehaviour
 
 
     #region Actions data
-        public int damage;
-        public float chargeTime = 0.0f;
-        public float hitTime = 0.1f;
-        public float blockImpactForce = 5f;
-        public float blockImpactStunTime = 1f;
-        float blockPushTimer; //Counts when blocking enemy push
-        float hitInputTimer; //Gives delay before deciding between hit and block
-        bool hitInput;
+    public int damage;
+    public float chargeTime = 0.0f;
+    public float hitTime = 0.1f;
+    public float blockImpactForce = 5f;
+    public float blockImpactStunTime = 1f;
+    float blockPushTimer; //Counts when blocking enemy push
+    float hitInputTimer; //Gives delay before deciding between hit and block
+    bool hitInput;
 
-        public bool isGrabbed = false;
-        public bool isStunned = false;
-        public bool isPushed = false;
+    public bool isGrabbed = false;
+    public bool isStunned = false;
+    public bool isPushed = false;
 
-        [SerializeField]bool isGrounded = true;
-        bool weaponCharging = false;
-        bool weaponCharged = false;
-        bool isGrabbing = false;
-        [SerializeField]bool isPushing = false;
-        [SerializeField]bool isBlocking = false;
-        bool isHitting = false;
-        bool leftHand = false;
-        public Weapon currentWeapon;
-        Player lastEnemyContact;
+    [SerializeField]bool isGrounded = true;
+    bool weaponCharging = false;
+    bool weaponCharged = false;
+    bool isGrabbing = false;
+    [SerializeField]bool isPushing = false;
+    [SerializeField]bool isBlocking = false;
+    bool isHitting = false;
+    bool leftHand = false;
+    public GameObject currentWeapon;
+    Player lastEnemyContact;
+
+    public GameObject grabbedEnemy;
+    private Vector3 localPositionWhenGrabbed;
 
 
     #endregion
@@ -157,10 +164,13 @@ public class Player : MonoBehaviour
     {
         health = new Health(maxHealth);
         rb = GetComponent<Rigidbody>();
-        Physics.gravity = -Vector3.up*globalGravity;
+        Physics.gravity = -Vector3.up * globalGravity;
         distToGround = playerCollider.bounds.extents.y;
         distToFace = playerCollider.bounds.extents.z;
         anim = GetComponentInChildren<Animator>();     
+        grabPoint = gameObject.transform.Find("GrabPoint").gameObject;
+        enemyGrabPoint = gameObject.transform.Find("EnemyGrabPoint").gameObject;
+        //for grabbing
     }
     void FixedUpdate()
     {
@@ -168,17 +178,22 @@ public class Player : MonoBehaviour
         pos.y += distToGround;
         isGrounded = allowGrounded ? Physics.Raycast(pos, -transform.up, distToGround + 0.3f , groundLayerMask) : false;
         anim.SetBool("isGrounded", isGrounded);
+        if (isGrabbed)
+        {
+            transform.localPosition = localPositionWhenGrabbed;
+        }
         if (!isGrounded)
         {
             EndPush();
             EndGrab();
         }
-        
+
     }
     void Update()
     {
         anim.SetBool("hasWeapon", currentWeapon!=null);
         anim.SetBool("isHitting", isHitting);
+        anim.SetBool("hasWeapon", currentWeapon != null);
         if (isPushed && isBlocking)
         {
             blockPushTimer += Time.deltaTime;
@@ -187,7 +202,7 @@ public class Player : MonoBehaviour
                 //Create impact against pushing enemy
                 lastEnemyContact.isGrounded = false;
                 lastEnemyContact.allowGrounded = false;
-                lastEnemyContact.rb.velocity = (transform.forward*2 + Vector3.up*0.25f)*blockImpactForce;
+                lastEnemyContact.rb.velocity = (transform.forward * 2 + Vector3.up * 0.25f) * blockImpactForce;
                 lastEnemyContact.AddBuff(true, false, blockImpactStunTime);
                 Debug.Log(lastEnemyContact.isPushing + ", " + lastEnemyContact.isGrounded + ", " + lastEnemyContact.rb.velocity);
                 isPushed = false;
@@ -222,8 +237,14 @@ public class Player : MonoBehaviour
 
     public void TransportToStart()
     {
+        if (isGrabbing)
+        {
+            EndGrab();
+        }
+
         transform.position = spawnPoints[playerNumber].position;
         transform.rotation = spawnPoints[playerNumber].rotation;
+
     }
 
     public void HandleInput(GamePadState state, GamePadState prevState)
@@ -260,7 +281,7 @@ public class Player : MonoBehaviour
 
     void HandleMove(GamePadState state)
     {
-        
+
         moveAxisH = state.ThumbSticks.Left.X;
         moveAxisV = state.ThumbSticks.Left.Y;
 
@@ -272,7 +293,7 @@ public class Player : MonoBehaviour
         Vector2 newVelocity = Vector2.zero;
         // animControl.SetVerticalMagnitude(moveAxisH);
 
-        if (!isPushing )
+        if (!isPushing)
         {
             if (moveInput.magnitude > movementDeadzone && !isStunned)
             {
@@ -302,6 +323,7 @@ public class Player : MonoBehaviour
                     
                 if (newVelocity.magnitude > tempSpeed)
                     newVelocity = newVelocity.normalized * tempSpeed;
+
 
                 if (isBlocking)
                     newVelocity *= 0.5f;
@@ -335,6 +357,7 @@ public class Player : MonoBehaviour
                 transform.rotation = Quaternion.Lerp(Quaternion.Euler(transform.eulerAngles), Quaternion.Euler(euler), Time.deltaTime);
             
             anim.SetFloat("speedForward", 1.75f);
+
             Vector3 vel = transform.forward;
 
             if (!IsPushingEnemy())
@@ -344,7 +367,7 @@ public class Player : MonoBehaviour
             else
                 vel *= maxSpeed*0.5f;
 
-            rb.velocity = new Vector3(vel.x, rb.velocity.y,vel.z);
+            rb.velocity = new Vector3(vel.x, rb.velocity.y, vel.z);
         }
     }
     void HandleRotating(GamePadState state)
@@ -415,7 +438,7 @@ public class Player : MonoBehaviour
                         Hit(); //Hit with HAND
                 }
 
-                if (    (prevState.Buttons.X == ButtonState.Released && state.Buttons.X == ButtonState.Pressed) ||
+                if ((prevState.Buttons.X == ButtonState.Released && state.Buttons.X == ButtonState.Pressed) ||
                         (prevState.Buttons.B == ButtonState.Released && state.Buttons.B == ButtonState.Pressed))
                 {
                     Grab();
@@ -430,11 +453,11 @@ public class Player : MonoBehaviour
                     else if (!currentWeapon) //Grabbing player
                         EndGrab();
                 }
-                if(currentWeapon && weaponCharged && (state.Triggers.Left < 0.2f && state.Triggers.Right < 0.2f))
+                if (currentWeapon && weaponCharged && (state.Triggers.Left < 0.2f && state.Triggers.Right < 0.2f))
                 {
                     Hit(); //Hits with weapon
                 }
-                
+
             }
         }
         else if (isPushed)
@@ -477,9 +500,9 @@ public class Player : MonoBehaviour
         if (currentWeapon && !weaponCharging)
         {
             anim.SetBool("isCharging", true);
-            
+
             weaponCharging = true;
-            Invoke("SetCharged", currentWeapon.chargeTime);
+            Invoke("SetCharged", currentWeapon.GetComponentInParent<Weapon>().chargeTime);
         }
     }
     void SetCharged() //Invoked from Charge()
@@ -495,14 +518,13 @@ public class Player : MonoBehaviour
         hitInput = false;
         if (currentWeapon && weaponCharged && !isHitting)
         {
-                //Weapon hits
-                isHitting = true;
-                weaponCharged = false;
-                anim.SetTrigger("hit");
-                anim.SetBool("isCharged", false);
-                currentWeapon.hitCollider.enabled = true;
-                Invoke("EndHit", currentWeapon.hitTime);
-                Invoke("EndGrab", currentWeapon.hitTime);
+            //Weapon hits
+            isHitting = true;
+            weaponCharged = false;
+            anim.SetBool("isHitting", true);
+            anim.SetBool("isCharged", false);
+            currentWeapon.GetComponentInParent<Weapon>().hitCollider.enabled = true;
+            Invoke("EndHit", currentWeapon.GetComponentInParent<Weapon>().hitTime);
         }
         else if (!currentWeapon && !isHitting)
         {
@@ -512,18 +534,19 @@ public class Player : MonoBehaviour
             anim.SetFloat ("HitNumber", Random.Range(0,3));
             //if lefthand ->    hit with left hand
             //else ->           hit with right hand
-            Invoke("CheckHit", hitTime/2);
+            Invoke("CheckHit", hitTime / 2);
             Invoke("EndHit", hitTime);
         }
 
         weaponCharged = false;
     }
+
     void CheckHit()
     {
         Debug.Log("Check hit");
-        RaycastHit[] hits = Physics.SphereCastAll(transform.position + (transform.forward *(distToFace+0.5f)), 0.5f, transform.forward, 0.2f, enemyLayerMask);
+        RaycastHit[] hits = Physics.SphereCastAll(transform.position + (transform.forward * (distToFace + 0.5f)), 0.5f, transform.forward, 0.2f, enemyLayerMask);
         List<Player> hitPlayers = new List<Player>();
-        foreach(var hit in hits)
+        foreach (var hit in hits)
         {
             Player enemy = hit.collider.GetComponentInParent<Player>();
             if (enemy && !hitPlayers.Contains(enemy) && enemy != this)
@@ -534,11 +557,17 @@ public class Player : MonoBehaviour
             }
         }
     }
+
     void EndHit() //Invoked from Hit()
     {
         anim.SetBool("isHitting", false);
+
         if (currentWeapon)
-            currentWeapon.hitCollider.enabled = false;
+        {
+            currentWeapon.GetComponentInParent<Weapon>().hitCollider.enabled = false;
+            Invoke("EndGrab", currentWeapon.GetComponentInParent<Weapon>().hitTime);
+        }
+
         isHitting = false;
     }
 
@@ -565,31 +594,100 @@ public class Player : MonoBehaviour
         anim.SetBool("isBlocking", false);
         isBlocking = false;
     }
+
+
     void Grab()
     {
         //Some kind of trigger/sphere check about what is in front of player
+        if (!isGrabbing)
+        {
 
-        //If weapon pickup
-            //Move it to hand bone
-            //Assign as currentWeapon
-            //Set animation speed (variable maybe in Weapon)
-        
-        //if another player
-            //Give other player "isGrabbed" to make its actions disabled
-        currentWeapon.player = this;
-        anim.SetBool("isGrabbing", true);
-        isGrabbing = true;
+            RaycastHit[] hits = Physics.SphereCastAll(transform.position + transform.forward, 0.5f, transform.forward, 1);
+
+            foreach (RaycastHit hit in hits)
+            {
+                if (!isGrabbing)
+                {
+
+                    if (hit.collider.gameObject.tag == "Player")
+                    {
+                        Player enemy = hit.collider.GetComponentInParent<Player>();
+                        if (enemy != this)
+                        {
+                            Debug.Log("gotHere, oops");
+                            //if another player
+                            enemy.GetGrabbed(enemyGrabPoint);
+                            anim.SetBool("isGrabbing", true);
+                            isGrabbing = true;
+                        }
+
+
+                    }
+                    else if (hit.collider.gameObject.tag == "Weapon")
+                    {
+                        currentWeapon = hit.collider.gameObject;
+                        currentWeapon.GetComponentInParent<Weapon>().ToBeGrabbed(grabPoint);
+                        //Set animation speed (variable maybe in Weapon)
+
+                        //currentWeapon.GetComponent<Weapon>().player = this;
+                        anim.SetBool("hasWeapon", true);
+                        isGrabbing = true;
+                    }
+                }
+            }
+        }
 
     }
     void EndGrab()
     {
         //Detach enemy/weapon from bone
+        if (currentWeapon)
+        {
+            currentWeapon.GetComponentInParent<Weapon>().ToBeDropped();
+            anim.SetBool("hasWeapon", false);
+            currentWeapon = null;
+        }
         //Throw enemy/weapon with physics force
-        anim.SetBool("hasWeapon", false);
-        currentWeapon = null;
-        anim.SetBool("isGrabbing", false);
+        else
+        {
+            anim.SetBool("isGrabbing", false);
+        }
+
         isGrabbing = false;
     }
+
+    public void GetGrabbed(GameObject grabber)
+    {
+     //   rb.detectCollisions = false;
+        transform.SetParent(grabber.transform);
+        transform.localPosition = localPositionWhenGrabbed;
+        isGrabbed = true;
+        rb.isKinematic = true;
+        rb.useGravity = false;
+        rb.detectCollisions = false;
+
+    }
+
+    public void GetThrown()
+    {
+        isGrabbed = false;
+        transform.SetParent(null);
+        rb.isKinematic = false;
+        rb.useGravity = true;
+        rb.detectCollisions = true;
+
+    }
+
+    public void GetReleased()
+    {
+        isGrabbed = false;
+        transform.SetParent(null);
+        rb.isKinematic = false;
+        rb.useGravity = true;
+        rb.detectCollisions = true;
+
+    }
+
 
     public void FlushAllActionData()
     {
@@ -684,7 +782,7 @@ public class Player : MonoBehaviour
 
     public void TakeOut()
     {
-        //DIE()???
+        //DIE()???      
         gameObject.SetActive(false);
     }
 }

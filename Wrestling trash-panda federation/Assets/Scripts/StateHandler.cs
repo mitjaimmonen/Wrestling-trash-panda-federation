@@ -86,7 +86,7 @@ public class StateHandler : MonoBehaviour
         if (gamestate == GameState.game)
         {
             if (LeftPlayers().Count < 2 || roundManager.TimeLeft() <= 0)
-            {                
+            {
                 roundManager.EndRound(LeftPlayers());
             }
 
@@ -146,20 +146,17 @@ public class StateHandler : MonoBehaviour
         {
             if (pDindex < playersDatas.Count)
             {
-                if(p.GetComponent<Player>())
+                Player temp = p.GetComponentInParent<Player>();
+                temp.meshNumber = playersDatas[pDindex].meshNumber;
+                temp.playerNumber = playersDatas[pDindex].characterIndex;
+                if (!players.Contains(temp.gameObject))
                 {
-                    Player temp = p.GetComponentInParent<Player>();
-                    temp.meshNumber = playersDatas[pDindex].meshNumber;
-                    temp.playerNumber = playersDatas[pDindex].characterIndex;
-                    if (!players.Contains(temp.gameObject))
-                    {
-                        players.Add(temp.gameObject);
-                        pDindex++;
+                    players.Add(temp.gameObject);
+                    pDindex++;
 
                     }
                     Debug.Log("Added player, meshNumber is:" + temp.meshNumber);
                 }
-            }
             else
             {
                 p.SetActive(false);
@@ -169,7 +166,7 @@ public class StateHandler : MonoBehaviour
 
         if (players.Count > 0)
         {
-            foreach(GameObject player in players)
+            foreach (GameObject player in players)
             {
                 var temp = player.GetComponentInChildren<Player>();
                 if (!temp)
@@ -220,7 +217,7 @@ public class StateHandler : MonoBehaviour
 
     public int Winner()
     {
-        return roundManager.GetWinner();
+        return roundManager.GetWinner() + 1;
     }
 
     #endregion

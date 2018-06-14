@@ -60,7 +60,7 @@ public class Scorekeeper
 
     public int ReturnWinner()
     {
-        OrderScore();
+       // OrderScore();
         return winner;
     }
 

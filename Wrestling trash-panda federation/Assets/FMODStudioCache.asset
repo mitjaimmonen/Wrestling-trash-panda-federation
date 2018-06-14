@@ -13,9 +13,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EditorBanks:
   - {fileID: 114496812662495772}
-  - {fileID: 114337543437429500}
+  - {fileID: 114783646542036380}
   EditorEvents: []
-  MasterBankRef: {fileID: 114337543437429500}
+  MasterBankRef: {fileID: 114783646542036380}
   StringsBankRef: {fileID: 114496812662495772}
   stringsBankWriteTime: 636640631915596893
   cacheVersion: 2
@@ -132,6 +132,25 @@ MonoBehaviour:
   - Name: Desktop
     Value: 12474
   Exists: 1
+--- !u!114 &114783646542036380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Path: C:\Users\Laptop\Documents\Git\Wrestling-trash-panda-federation\Wrestling trash-panda
+    federation\Assets\FMOD\Project\Build\Desktop\Master Bank.bank
+  lastModified: 636640631915527087
+  LoadResult: 0
+  FileSizes:
+  - Name: Desktop
+    Value: 12474
+  Exists: 1
 --- !u!114 &114846721362403670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -146,6 +165,25 @@ MonoBehaviour:
   Path: C:\Users\Laptop\Documents\Git\Wrestling-trash-panda-federation\Wrestling trash-panda
     federation\Assets\FMOD\Project\Build\Desktop\Master Bank.bank
   lastModified: 636640631915527087
+  LoadResult: 0
+  FileSizes:
+  - Name: Desktop
+    Value: 12474
+  Exists: 1
+--- !u!114 &114945646787320114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Path: C:\Users\c4arodri.WPK\Documents\Wrestling-trash-panda-federation\Wrestling
+    trash-panda federation\Assets\FMOD\Project\Build\Desktop\Master Bank.bank
+  lastModified: 636643989094047828
   LoadResult: 0
   FileSizes:
   - Name: Desktop

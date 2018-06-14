@@ -10,11 +10,13 @@ public class RoundManager : MonoBehaviour
     private int playersAtStart;
     private int playersDead;
     private Scorekeeper scoreKeeper;
+    public Animator fadePanel;
 
     public UnityEvent OnRoundStart;
     public bool isOnRound = false;
+    public bool gameEnded = false;
     public int roundNumber;
-
+    public bool betweenTurns = false;
 
     public float TimeLeft()
     {
@@ -25,7 +27,9 @@ public class RoundManager : MonoBehaviour
     {
         playersAtStart = _players;
         scoreKeeper = new Scorekeeper(_players);
+        OnRoundStart.Invoke();
         StartRound(1);
+        fadePanel = GameObject.FindGameObjectWithTag("FlashingPanel").GetComponent<Animator>();
     }
 
     private void StartRound(int roundNum)
@@ -33,57 +37,107 @@ public class RoundManager : MonoBehaviour
         roundNumber = roundNum;
         timer = 0;
         playersDead = 0;
-        OnRoundStart.Invoke();
-       // StartCoroutine(Countdown(3));
+
+
+        StartCoroutine(Countdown(3));
+
+
         isOnRound = true;
     }
 
     public void UpdateRound()
     {
         timer += Time.deltaTime;
-        Debug.Log("time left: " + TimeLeft());
+
     }
 
+    private bool ContinueGame()
+    {      
 
+        if (roundNumber < 3)
+        {
+            if (scoreKeeper.ReturnHighScore() < 2)
+            {
+                return true;
+            }            
+            else
+                return false;
+        }
+
+        else
+        {
+            if (scoreKeeper.Tied())
+                return true;
+            else
+                return false;
+        }
+    }
 
     public void EndRound(List<GameObject> playersLeft)
     {
         isOnRound = false;
+        if (!gameEnded && !betweenTurns)
+        {
+            DistributePoints(playersLeft);
 
+            if (ContinueGame())
+            {
+                StartCoroutine(NextRound());
+            }
+
+            else
+            {
+                gameEnded = true;
+                StartCoroutine(EndTimer());
+
+            }
+        }
+
+    }
+
+    void DistributePoints(List<GameObject> playersLeft)
+    {
+        Debug.Log("addin points");
         foreach (GameObject p in playersLeft)
         {
             scoreKeeper.AddScore(1, p.GetComponent<Player>().playerNumber);
-        }
-
-        if (roundNumber < 3 && isOnRound)
-        {
-            StartCoroutine(NextRound());
-        }
-        else
-        {
-            StartCoroutine(EndTimer());
         }
     }
 
     IEnumerator Countdown(float time)
     {
-        Time.timeScale = 0;
+        //players should not
         //show timer counting down
-        yield return new WaitForSeconds(time);
-        Time.timeScale = 1;
+        yield return new WaitForSeconds(3);
+
     }
 
     IEnumerator NextRound()
     {
-        //score feedback
-        yield return new WaitForSeconds(2);
-        //fade??           
+        betweenTurns = true;
+        fadePanel.SetTrigger("Fade");
+        //score feedback        
+        yield return new WaitForSeconds(0.35f);
+        OnRoundStart.Invoke();
         StartRound(roundNumber + 1);
+        betweenTurns = false;
+
+
     }
 
     IEnumerator EndTimer()
     {
         yield return new WaitForSeconds(3);
         //END GAME
+    }
+
+    public float getScore(int player)
+    {
+        return scoreKeeper.scoreArray[player];
+    }
+
+    public int GetWinner()
+    {
+        return scoreKeeper.ReturnWinner();
     }
 }

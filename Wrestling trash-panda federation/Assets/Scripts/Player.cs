@@ -640,21 +640,9 @@ public class Player : MonoBehaviour
 
     }
 
-
-
-    void OnGUI()
+    public void TakeOut()
     {
-        if (GetComponent<PlayerDebug>())
-        {
-            string text = "Boolean States:\n";
-            text += string.Format("IsBlocking: {0}\n", isBlocking);
-            text += string.Format("isGrabbing: {0}\n", isGrabbing);
-            text += string.Format("IsPushing: {0}\n", isPushing);
-            text += string.Format("weaponCharging: {0}, weaponcharged: {1}, chargeTime: {2}\n", weaponCharging, weaponCharged, chargeTime);
-            text += string.Format("CurrentWEapon: {0}\n",currentWeapon);
-            text += string.Format("isHitting: {0}, leftHand: {1}, hitTime {2}\n", isHitting,leftHand, hitTime);
-            GUI.Label(new Rect(0, 0, Screen.width, Screen.height), text);
-
-        }
+        //DIE()???
+        gameObject.SetActive(false);
     }
 }

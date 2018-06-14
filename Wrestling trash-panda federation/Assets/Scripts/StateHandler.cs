@@ -85,15 +85,16 @@ public class StateHandler : MonoBehaviour
     {
         if (gamestate == GameState.game)
         {
-            if (roundManager.isOnRound)
+            if (LeftPlayers().Count < 2 || roundManager.TimeLeft() <= 0)
+            {                
+                roundManager.EndRound(LeftPlayers());
+            }
+
+            else if (roundManager.isOnRound)
             {
                 roundManager.UpdateRound();
             }
 
-            else if (LeftPlayers().Count < 2 || roundManager.TimeLeft()<=0)
-            {
-                roundManager.EndRound(LeftPlayers());
-            }
         }
     }
 
@@ -111,7 +112,7 @@ public class StateHandler : MonoBehaviour
             gamestate = scene.buildIndex != 0 ? GameState.game : GameState.menu;
         }
         else
-        gamestate = scene.buildIndex == 1 ? GameState.game : GameState.menu;
+            gamestate = scene.buildIndex == 1 ? GameState.game : GameState.menu;
         Instantiate();
     }
 
@@ -145,11 +146,16 @@ public class StateHandler : MonoBehaviour
         {
             if (pDindex < playersDatas.Count)
             {
-                p.GetComponent<Player>().meshNumber = playersDatas[pDindex].meshNumber;
-                p.GetComponent<Player>().playerNumber = playersDatas[pDindex].characterIndex;
-                players.Add(p);
-                Debug.Log("Added player, meshNumber is:" + p.GetComponent<Player>().meshNumber);
-                pDindex++;
+                Player temp = p.GetComponentInParent<Player>();
+                temp.meshNumber = playersDatas[pDindex].meshNumber;
+                temp.playerNumber = playersDatas[pDindex].characterIndex;
+                if (!players.Contains(temp.gameObject))
+                {
+                    players.Add(temp.gameObject);
+                    pDindex++;
+
+                }
+                Debug.Log("Added player, meshNumber is:" + temp.meshNumber);
             }
             else
             {
@@ -173,6 +179,7 @@ public class StateHandler : MonoBehaviour
         foreach (GameObject p in players)
         {
             p.GetComponent<Player>().TransportToStart();
+            p.SetActive(true);
         }
     }
 
@@ -195,4 +202,18 @@ public class StateHandler : MonoBehaviour
             playersDatas.Add(temp);
         }
     }
+
+    #region Getters
+
+    public int PlayerCount()
+    {
+        return players.Count;
+    }
+
+    public int Winner()
+    {
+        return roundManager.GetWinner();
+    }
+
+    #endregion
 }

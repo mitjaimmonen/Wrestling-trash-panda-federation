@@ -1755,6 +1755,7 @@ MonoBehaviour:
     characterIndex: 0
     gamepadPlayerIndex: 0
     meshNumber: 0
+  skinnedMeshRenderer: {fileID: 137628377290913934}
   modelPrefabs:
   - {fileID: 1153549671485814, guid: 44e07f755a0698c4988d45726837e411, type: 2}
   - {fileID: 1855420981675932, guid: 441322e69789bb94199b02eaa3e200ce, type: 2}
@@ -1783,7 +1784,7 @@ MonoBehaviour:
   enemyLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  damage: 0
+  damage: 1
   chargeTime: 0.3
   hitTime: 0.3
   blockImpactForce: 5

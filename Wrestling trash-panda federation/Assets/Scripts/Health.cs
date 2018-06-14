@@ -34,7 +34,7 @@ public class Health  {
 
     public void Heal (int value)
     {
-        currentHealth += value;
+        currentHealth = Mathf.Min(currentHealth+value, maxHealth);
     }
 
     public void SetHealthToMax()

@@ -146,16 +146,19 @@ public class StateHandler : MonoBehaviour
         {
             if (pDindex < playersDatas.Count)
             {
-                Player temp = p.GetComponentInParent<Player>();
-                temp.meshNumber = playersDatas[pDindex].meshNumber;
-                temp.playerNumber = playersDatas[pDindex].characterIndex;
-                if (!players.Contains(temp.gameObject))
+                if(p.GetComponent<Player>())
                 {
-                    players.Add(temp.gameObject);
-                    pDindex++;
+                    Player temp = p.GetComponentInParent<Player>();
+                    temp.meshNumber = playersDatas[pDindex].meshNumber;
+                    temp.playerNumber = playersDatas[pDindex].characterIndex;
+                    if (!players.Contains(temp.gameObject))
+                    {
+                        players.Add(temp.gameObject);
+                        pDindex++;
 
+                    }
+                    Debug.Log("Added player, meshNumber is:" + temp.meshNumber);
                 }
-                Debug.Log("Added player, meshNumber is:" + temp.meshNumber);
             }
             else
             {
@@ -168,7 +171,12 @@ public class StateHandler : MonoBehaviour
         {
             foreach(GameObject player in players)
             {
-                player.GetComponentInChildren<MeshFilter>().mesh = playerMeshes[player.GetComponent<Player>().meshNumber];
+                var temp = player.GetComponentInChildren<Player>();
+                if (!temp)
+                    temp = player.GetComponentInParent<Player>();
+                    
+                temp.skinnedMeshRenderer.sharedMesh = playerMeshes[temp.meshNumber];
+                // player.GetComponentInChildren<MeshFilter>().mesh = playerMeshes[player.GetComponent<Player>().meshNumber];
 
             }
         }

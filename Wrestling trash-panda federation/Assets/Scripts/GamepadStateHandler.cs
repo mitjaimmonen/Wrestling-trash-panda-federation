@@ -40,7 +40,7 @@ public class GamepadStateHandler : MonoBehaviour {
 
 		for(int i = 0; i < playerDataArray.Length;i++)
 		{
-			playerDataArray[i] = null;
+			playerDataArray[i].characterIndex = -1;
 		}
     }
 

@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     public int playerNumber;
     public int meshNumber;
     public Playerdata playerData;
+    public SkinnedMeshRenderer skinnedMeshRenderer;
 
     [Tooltip("List of player skins (prefabs). Player chooses which one gets instantiated at main menu joining.")]
     public GameObject[] modelPrefabs = new GameObject[4];
@@ -80,6 +81,7 @@ public class Player : MonoBehaviour
     float globalGravity = 15f; //Change to affect falling speed
     float stunTime;
     float groundTimer = 0;
+    float healthRegenTimer = 0;
     bool allowGrounded = true;
 
     bool destroying;
@@ -208,6 +210,14 @@ public class Player : MonoBehaviour
             hitInputTimer += Time.deltaTime;
         else
             hitInputTimer = 0;
+
+        healthRegenTimer += Time.deltaTime;
+        if (healthRegenTimer > 2f)
+        {
+            healthRegenTimer = 0;
+            health.Heal(1);
+            Debug.Log(health.CurrentHealth);
+        }
     }
 
     public void TransportToStart()
@@ -300,7 +310,7 @@ public class Player : MonoBehaviour
                 {
                     Vector3 euler = new Vector3(0, Mathf.Atan2(moveInput.x,moveInput.y) * 180 / Mathf.PI, 0);
                     if (euler.magnitude > 0.1f)
-                        transform.rotation = Quaternion.Lerp(Quaternion.Euler(transform.eulerAngles), Quaternion.Euler(euler), Time.deltaTime*10f);
+                        transform.rotation = Quaternion.Lerp(Quaternion.Euler(transform.eulerAngles), Quaternion.Euler(euler), Time.deltaTime*7.5f);
                 }
 
                 rb.velocity = new Vector3(newVelocity.x, rb.velocity.y, newVelocity.y);
@@ -610,16 +620,19 @@ public class Player : MonoBehaviour
 
     IEnumerator HandleBuff(bool stunned)
     {
+        float timer = Time.time;
+        //Stun particlesystem play
+        //Stun sound play
+
         if (stunned)
-        {
-            //Stun particlesystem play
-            //Stun sound play
             yield return new WaitForSecondsRealtime(stunTime);
-            anim.SetBool("isStunned", false);
-            isStunned = false;
-            //Stun particlesystem stop
-            //Stun sound stop
-        }
+
+        //Stun particlesystem stop
+        //Stun sound stop
+
+        health.SetHealthToMax();
+        anim.SetBool("isStunned", false);
+        isStunned = false;
     }
 
     public void GetHit(int dmgValue)
@@ -649,7 +662,7 @@ public class Player : MonoBehaviour
 
         if (!health.isAlive())
         {
-            AddBuff(true, false, 1f);
+            AddBuff(true, false, 5f);
             FMODUnity.RuntimeManager.PlayOneShot(getKnockedOutBitchSound, transform.position);
         }
 

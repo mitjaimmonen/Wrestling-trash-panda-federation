@@ -16,6 +16,7 @@ public class Player : MonoBehaviour
     public Transform[] spawnPoints;
     public int maxHealth;
     public CapsuleCollider playerCollider;
+    public SphereCollider playerTrigger;
     public GameObject takeDamageParticles;
 
 
@@ -29,8 +30,9 @@ public class Player : MonoBehaviour
 
 
 
+    float oldSpeed;
     public float maxSpeed;
-    public float movementSpeed;
+    public float movementForce;
     [Range(0.01f, 0.99f), Tooltip("Deadzone for joystick movement (Left stick).")]
     public float movementDeadzone = 0.05f;
     [Range(0.01f, 0.99f), Tooltip("Deadzone for joystick rotation (Right stick).")]
@@ -46,21 +48,24 @@ public class Player : MonoBehaviour
         public float chargeTime = 0.0f;
         public float hitTime = 0.1f;
         public float blockImpactForce = 5f;
+        public float blockImpactStunTime = 1f;
         float blockPushTimer; //Counts when blocking enemy push
+        float hitInputTimer; //Gives delay before deciding between hit and block
+        bool hitInput;
 
         public bool isGrabbed = false;
         public bool isStunned = false;
         public bool isPushed = false;
 
-        public bool isGrounded = true;
-        public bool weaponCharging = false;
-        public bool weaponCharged = false;
-        public bool isGrabbing = false;
-        public bool isPushing = false;
-        public bool pushingEnemy = false;
-        public bool isBlocking = false;
-        public bool isHitting = false;
-        public bool leftHand = false;
+        bool isGrounded = true;
+        bool weaponCharging = false;
+        bool weaponCharged = false;
+        bool isGrabbing = false;
+        bool isPushing = false;
+        bool pushingEnemy = false;
+        bool isBlocking = false;
+        bool isHitting = false;
+        bool leftHand = false;
         public Weapon currentWeapon;
         Player lastEnemyContact;
 
@@ -128,6 +133,21 @@ public class Player : MonoBehaviour
         }
     }
 
+    // void OnTriggerStay(Collider col)
+    // {
+    //     Player enemy = col.gameObject.GetComponentInParent<Player>();
+    //     if(enemy && enemy != this)
+    //     {
+    //         Debug.Log("Collision");
+    //         maxSpeed = oldSpeed * 0.0f;
+    //     }
+    // }
+    // void OnTriggerExit(Collider col)
+    // {
+    //     Debug.Log("Collision exit");
+    //     maxSpeed = oldSpeed;
+    // }
+
     private void Awake()
     {
         health = new Health(maxHealth);
@@ -136,6 +156,7 @@ public class Player : MonoBehaviour
         distToGround = playerCollider.bounds.extents.y;
         distToFace = playerCollider.bounds.extents.z;
         anim = GetComponentInChildren<Animator>();     
+        oldSpeed = maxSpeed;
     }
     void FixedUpdate()
     {
@@ -160,7 +181,7 @@ public class Player : MonoBehaviour
                 lastEnemyContact.isGrounded = false;
                 lastEnemyContact.allowGrounded = false;
                 lastEnemyContact.rb.velocity = (transform.forward*2 + Vector3.up*0.25f)*blockImpactForce;
-                lastEnemyContact.AddBuff(true, false, 0.5f);
+                lastEnemyContact.AddBuff(true, false, blockImpactStunTime);
                 Debug.Log(lastEnemyContact.isPushing + ", " + lastEnemyContact.isGrounded + ", " + lastEnemyContact.rb.velocity);
                 isPushed = false;
             }
@@ -177,6 +198,11 @@ public class Player : MonoBehaviour
                 groundTimer = 0;
             }
         }
+
+        if (hitInput)
+            hitInputTimer += Time.deltaTime;
+        else
+            hitInputTimer = 0;
     }
 
     public void TransportToStart()
@@ -234,10 +260,30 @@ public class Player : MonoBehaviour
                 // input.x = input.x != 0 && input.x > 0 ? input.x - movementDeadzone : input.x;
                 // input.z = input.z != 0 && input.z < 0 ? input.z + movementDeadzone : input.z;
                 // input.z = input.z != 0 && input.z > 0 ? input.z - movementDeadzone : input.z;
-                newVelocity = input * movementSpeed * Time.fixedDeltaTime * 100f;
+                newVelocity = input * movementForce * Time.fixedDeltaTime * 100f;
+
+                bool colliding = false;
+                Vector3 direction = new Vector3(newVelocity.x,0,newVelocity.y).normalized;
+                RaycastHit[] hits = Physics.SphereCastAll(transform.position + (direction * (distToFace)),0.1f,direction, 0.0f,enemyLayerMask );
+                foreach(var hit in hits)
+                {
+                    Player enemy = hit.collider.GetComponentInParent<Player>();
+                    if (enemy && enemy != this)
+                    {
+                        Debug.Log("Slowing down");
+                        maxSpeed = oldSpeed * 0.1f;
+                        colliding = true;
+                    }
+                }
+                if (!colliding)
+                    maxSpeed = oldSpeed;
+
                     
                 if (newVelocity.magnitude > maxSpeed)
                     newVelocity = newVelocity.normalized * maxSpeed;
+
+                if (isBlocking)
+                    newVelocity *= 0.5f;
 
                 rb.velocity = new Vector3(newVelocity.x, rb.velocity.y, newVelocity.y);
             }
@@ -287,15 +333,17 @@ public class Player : MonoBehaviour
             if (!isGrabbing)
             {
 
-                if (isGrounded && state.Buttons.A == ButtonState.Pressed && prevState.Buttons.A == ButtonState.Released)
+                if (isGrounded && ((prevState.Buttons.Y == ButtonState.Released && state.Buttons.Y == ButtonState.Pressed) ||
+                (state.Buttons.A == ButtonState.Pressed && prevState.Buttons.A == ButtonState.Released)))
                 {
                     Jump();
                 }
 
                 //Charging weapon if hasWeapon and pushing if !hasWeapon
-                if (!isHitting && !isPushing && state.Buttons.RightShoulder == ButtonState.Pressed && state.Buttons.LeftShoulder == ButtonState.Pressed && (prevState.Buttons.RightShoulder == ButtonState.Released || prevState.Buttons.LeftShoulder == ButtonState.Released))
+                if (!isHitting && !isPushing && state.Buttons.RightShoulder == ButtonState.Pressed && state.Buttons.LeftShoulder == ButtonState.Pressed)
                 {
                     //Every frame
+                    hitInput = false;
                     Block();
                 }
                 if (isBlocking && state.Buttons.RightShoulder == ButtonState.Released && state.Buttons.LeftShoulder == ButtonState.Released)
@@ -314,20 +362,23 @@ public class Player : MonoBehaviour
                     EndPush();
                 }
 
-                if (!isPushing && prevState.Buttons.RightShoulder == ButtonState.Released && state.Buttons.RightShoulder == ButtonState.Pressed && state.Buttons.LeftShoulder == ButtonState.Released)
+                if (!isPushing && !isBlocking && state.Buttons.RightShoulder == ButtonState.Pressed && state.Buttons.LeftShoulder == ButtonState.Released)
                 {
                     leftHand = false;
-                    Hit(); //Hit with HAND
+                    hitInput = true;
+                    if (hitInputTimer > 0.033f)
+                        Hit(); //Hit with HAND
                 }
 
-                if (!isPushing && prevState.Buttons.LeftShoulder == ButtonState.Released && state.Buttons.LeftShoulder == ButtonState.Pressed && state.Buttons.RightShoulder == ButtonState.Released)
+                if (!isPushing && !isBlocking && state.Buttons.LeftShoulder == ButtonState.Pressed && state.Buttons.RightShoulder == ButtonState.Released)
                 {
                     leftHand = true;
-                    Hit(); //Hit with HAND
+                    hitInput = true;
+                    if (hitInputTimer > 0.033f)
+                        Hit(); //Hit with HAND
                 }
 
                 if (    (prevState.Buttons.X == ButtonState.Released && state.Buttons.X == ButtonState.Pressed) ||
-                        (prevState.Buttons.Y == ButtonState.Released && state.Buttons.Y == ButtonState.Pressed) ||
                         (prevState.Buttons.B == ButtonState.Released && state.Buttons.B == ButtonState.Pressed))
                 {
                     Grab();
@@ -404,6 +455,7 @@ public class Player : MonoBehaviour
 
     void Hit()
     {
+        hitInput = false;
         if (currentWeapon && weaponCharged && !isHitting)
         {
                 //Weapon hits
@@ -502,8 +554,6 @@ public class Player : MonoBehaviour
 
     public void FlushAllActionData()
     {
-        chargeTime = 0.1f;
-        hitTime = 0.1f;
         weaponCharging = false;
         weaponCharged = false;
         isGrabbing = false;
@@ -518,7 +568,7 @@ public class Player : MonoBehaviour
 
     public void AddBuff(bool stunned, bool grabbed, float time)
     {
-        if (isStunned)
+        if (isStunned || isGrabbed)
             return;
         isStunned = stunned;
         isGrabbed = grabbed;
@@ -533,9 +583,13 @@ public class Player : MonoBehaviour
     {
         if (stunned)
         {
+            //Stun particlesystem play
+            //Stun sound play
             yield return new WaitForSecondsRealtime(stunTime);
             anim.SetBool("isStunned", false);
             isStunned = false;
+            //Stun particlesystem stop
+            //Stun sound stop
         }
     }
 

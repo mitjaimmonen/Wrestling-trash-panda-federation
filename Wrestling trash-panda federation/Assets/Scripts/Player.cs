@@ -162,7 +162,9 @@ public class Player : MonoBehaviour
     }
     void FixedUpdate()
     {
-        isGrounded = allowGrounded ? Physics.Raycast(transform.position, -Vector3.up, distToGround + 0.1f, groundLayerMask) : false;
+        Vector3 pos = transform.position;
+        pos.y += distToGround;
+        isGrounded = allowGrounded ? Physics.Raycast(pos, -transform.up, distToGround + 0.3f , groundLayerMask) : false;
         anim.SetBool("isGrounded", isGrounded);
         if (!isGrounded)
         {
@@ -174,6 +176,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         anim.SetBool("hasWeapon", currentWeapon!=null);
+        anim.SetBool("isHitting", isHitting);
         if (isPushed && isBlocking)
         {
             blockPushTimer += Time.deltaTime;
@@ -250,24 +253,29 @@ public class Player : MonoBehaviour
         
         moveAxisH = state.ThumbSticks.Left.X;
         moveAxisV = state.ThumbSticks.Left.Y;
-        Vector2 input = new Vector2(moveAxisH, moveAxisV);
+
+        rotAxisH = state.ThumbSticks.Right.X;
+        rotAxisV = state.ThumbSticks.Right.Y;
+
+        Vector2 moveInput = new Vector2(moveAxisH, moveAxisV);
+        Vector2 rotInput = new Vector2(rotAxisH, rotAxisV);
         Vector2 newVelocity = Vector2.zero;
         // animControl.SetVerticalMagnitude(moveAxisH);
 
         if (!isPushing )
         {
-            if (input.magnitude > movementDeadzone && !isStunned)
+            if (moveInput.magnitude > movementDeadzone && !isStunned)
             {
                 // input.x = input.x != 0 && input.x < 0 ? input.x + movementDeadzone : input.x;
                 // input.x = input.x != 0 && input.x > 0 ? input.x - movementDeadzone : input.x;
                 // input.z = input.z != 0 && input.z < 0 ? input.z + movementDeadzone : input.z;
                 // input.z = input.z != 0 && input.z > 0 ? input.z - movementDeadzone : input.z;
-                newVelocity = input * movementForce * Time.fixedDeltaTime * 100f;
+                newVelocity = moveInput * movementForce * Time.fixedDeltaTime * 100f;
 
                 bool colliding = false;
                 float tempSpeed = maxSpeed;
                 Vector3 direction = new Vector3(newVelocity.x,0,newVelocity.y).normalized;
-                RaycastHit[] hits = Physics.SphereCastAll(transform.position + (direction * (distToFace)),0.1f,direction, 0.0f,enemyLayerMask );
+                RaycastHit[] hits = Physics.SphereCastAll(transform.position + playerCollider.center + (direction * (distToFace)),0.5f,direction, 0.0f,enemyLayerMask );
                 foreach(var hit in hits)
                 {
                     Player enemy = hit.collider.GetComponentInParent<Player>();
@@ -288,14 +296,26 @@ public class Player : MonoBehaviour
                 if (isBlocking)
                     newVelocity *= 0.5f;
 
+                if (rotInput.magnitude < 0.1f)
+                {
+                    Vector3 euler = new Vector3(0, Mathf.Atan2(moveInput.x,moveInput.y) * 180 / Mathf.PI, 0);
+                    if (euler.magnitude > 0.1f)
+                        transform.rotation = Quaternion.Lerp(Quaternion.Euler(transform.eulerAngles), Quaternion.Euler(euler), Time.deltaTime*10f);
+                }
+
                 rb.velocity = new Vector3(newVelocity.x, rb.velocity.y, newVelocity.y);
+                anim.SetBool("isMoving", true);
+                anim.SetFloat("speedForward", moveInput.magnitude);
             }
             else
             {
                 //Stop movement
+                anim.SetBool("isMoving", false);
+                anim.SetFloat("speedForward", 0);
                 float multiplier = isGrounded ? 0.5f : 1f;
                 rb.velocity = new Vector3(rb.velocity.x *multiplier,rb.velocity.y, rb.velocity.z*multiplier);
             }
+
 
         }
         else if (isPushing && !isStunned)
@@ -304,6 +324,7 @@ public class Player : MonoBehaviour
             if (euler.magnitude > 0.2f)
                 transform.rotation = Quaternion.Lerp(Quaternion.Euler(transform.eulerAngles), Quaternion.Euler(euler), Time.deltaTime);
             
+            anim.SetFloat("speedForward", 1.75f);
             Vector3 vel = transform.forward;
 
             if (!IsPushingEnemy())
@@ -467,7 +488,7 @@ public class Player : MonoBehaviour
                 //Weapon hits
                 isHitting = true;
                 weaponCharged = false;
-                anim.SetBool("isHitting", true);
+                anim.SetTrigger("hit");
                 anim.SetBool("isCharged", false);
                 currentWeapon.hitCollider.enabled = true;
                 Invoke("EndHit", currentWeapon.hitTime);
@@ -476,7 +497,9 @@ public class Player : MonoBehaviour
         else if (!currentWeapon && !isHitting)
         {
             isHitting = true;
-            anim.SetBool("isHitting", true);
+            anim.SetTrigger("hit");
+            anim.SetBool("leftHand", leftHand);
+            anim.SetFloat ("HitNumber", Random.Range(0,3));
             //if lefthand ->    hit with left hand
             //else ->           hit with right hand
             Invoke("CheckHit", hitTime/2);

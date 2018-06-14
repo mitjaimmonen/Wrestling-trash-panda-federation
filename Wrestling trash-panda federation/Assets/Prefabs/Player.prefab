@@ -1782,7 +1782,7 @@ MonoBehaviour:
     m_Bits: 1
   enemyLayerMask:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 4294967295
   damage: 0
   chargeTime: 0.3
   hitTime: 0.3
@@ -1806,7 +1806,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b2c408b9746813408f12b34e7e59a97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  overrideInputs: 1
+  overrideInputs: 0
 --- !u!136 &136782071488014808
 CapsuleCollider:
   m_ObjectHideFlags: 1

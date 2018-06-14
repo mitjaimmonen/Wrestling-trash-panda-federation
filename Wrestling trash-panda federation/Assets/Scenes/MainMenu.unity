@@ -762,6 +762,7 @@ MonoBehaviour:
   isOnRound: 0
   gameEnded: 0
   roundNumber: 0
+  betweenTurns: 0
 --- !u!114 &1310262161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -793,17 +794,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerDataArray:
-  - playerIndex: 0
-    gamepadIndex: 0
+  - characterIndex: 0
+    gamepadPlayerIndex: 0
     meshNumber: 0
-  - playerIndex: 0
-    gamepadIndex: 0
+  - characterIndex: 0
+    gamepadPlayerIndex: 0
     meshNumber: 0
-  - playerIndex: 0
-    gamepadIndex: 0
+  - characterIndex: 0
+    gamepadPlayerIndex: 0
     meshNumber: 0
-  - playerIndex: 0
-    gamepadIndex: 0
+  - characterIndex: 0
+    gamepadPlayerIndex: 0
     meshNumber: 0
   stateHandler: {fileID: 0}
   avatars: {fileID: 0}

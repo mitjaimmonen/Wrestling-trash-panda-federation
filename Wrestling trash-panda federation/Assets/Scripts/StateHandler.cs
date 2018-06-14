@@ -119,7 +119,6 @@ public class StateHandler : MonoBehaviour
 
     void Instantiate()
     {
-
         if (!gamepadStateHandler)
             gamepadStateHandler = GetComponent<GamepadStateHandler>();
 
@@ -147,11 +146,16 @@ public class StateHandler : MonoBehaviour
         {
             if (pDindex < playersDatas.Count)
             {
-                p.GetComponent<Player>().meshNumber = playersDatas[pDindex].meshNumber;
-                p.GetComponent<Player>().playerNumber = playersDatas[pDindex].playerIndex;
-                players.Add(p);
-                Debug.Log("Added player, meshNumber is:" + p.GetComponent<Player>().meshNumber);
-                pDindex++;
+                Player temp = p.GetComponentInParent<Player>();
+                temp.meshNumber = playersDatas[pDindex].meshNumber;
+                temp.playerNumber = playersDatas[pDindex].characterIndex;
+                if (!players.Contains(temp.gameObject))
+                {
+                    players.Add(temp.gameObject);
+                    pDindex++;
+
+                }
+                Debug.Log("Added player, meshNumber is:" + temp.meshNumber);
             }
             else
             {
@@ -162,8 +166,7 @@ public class StateHandler : MonoBehaviour
 
         if (players.Count > 0)
         {
-
-            foreach (GameObject player in players)
+            foreach(GameObject player in players)
             {
                 player.GetComponentInChildren<MeshFilter>().mesh = playerMeshes[player.GetComponent<Player>().meshNumber];
 
@@ -193,7 +196,7 @@ public class StateHandler : MonoBehaviour
         for (int i = 0; i < amountJoined; i++)
         {
             Playerdata temp = new Playerdata();
-            temp.playerIndex = i;
+            temp.characterIndex = i;
             temp.meshNumber = avatars.indexes[i];
 
             playersDatas.Add(temp);

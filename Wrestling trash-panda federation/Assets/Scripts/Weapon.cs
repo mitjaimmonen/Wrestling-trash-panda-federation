@@ -4,20 +4,30 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour {
 
-	public float damage;
+	public Player player;
+	public Collider hitCollider;
+	public int damage;
 	public float chargeTime;
 	public float hitTime;
 	public bool oneTimeUse;
 	public bool breakable;
 	public float breakForce;
 
-	// Use this for initialization
-	void Start () {
-		
+	void Awake()
+	{
+		if (!hitCollider)
+			hitCollider = GetComponent<Collider>();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+	void OnTriggerEnter(Collider other)
+	{
+		if(other.gameObject.layer == LayerMask.NameToLayer("Player"))
+		{
+			Player enemy = other.GetComponentInParent<Player>();
+			if (enemy)
+			{
+				enemy.GetHit(damage);
+
+			}
+		}
 	}
 }

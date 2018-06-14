@@ -304,7 +304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   avatarMeshes:
-  - {fileID: 4300014, guid: 45274edc6e3e466489d35298d1d6dcb1, type: 3}
+  - {fileID: 4300014, guid: 8c28122a235b4d4419a48dff855182fe, type: 3}
   - {fileID: 4300008, guid: 63e8877016fddf64289e71d4675f28b6, type: 3}
   - {fileID: 4300004, guid: 8b98c32e2616aab4fa45efa43502d5ca, type: 3}
   - {fileID: 4300006, guid: 378bf7fb50241644596ed25b5d1dcf2e, type: 3}

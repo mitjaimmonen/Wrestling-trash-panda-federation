@@ -72,7 +72,7 @@ public class Player : MonoBehaviour
     public GameObject currentWeapon;
     Player lastEnemyContact;
 
-    public GameObject grabbedEnemy;
+    public Player grabbedEnemy;
     private Vector3 localPositionWhenGrabbed;
 
 
@@ -240,13 +240,23 @@ public class Player : MonoBehaviour
 
     public void TransportToStart()
     {
-        if (isGrabbing)
+
+        if (currentWeapon)
         {
             EndGrab();
         }
 
+        if (isGrabbed)
+        {
+            GetReleased();
+        }
+
         transform.position = spawnPoints[playerNumber].position;
         transform.rotation = spawnPoints[playerNumber].rotation;
+
+        rb.isKinematic = false;
+
+
 
     }
 
@@ -617,8 +627,7 @@ public class Player : MonoBehaviour
                         Player enemy = hit.collider.GetComponentInParent<Player>();
                         if (enemy != this)
                         {
-                            Debug.Log("gotHere, oops");
-                            //if another player
+                            grabbedEnemy = enemy;
                             enemy.GetGrabbed(enemyGrabPoint);
                             anim.SetBool("isGrabbing", true);
                             isGrabbing = true;
@@ -651,8 +660,9 @@ public class Player : MonoBehaviour
             currentWeapon = null;
         }
         //Throw enemy/weapon with physics force
-        else
+        else if (grabbedEnemy)
         {
+            grabbedEnemy.GetThrown(this.gameObject);
             anim.SetBool("isGrabbing", false);
         }
 
@@ -671,13 +681,16 @@ public class Player : MonoBehaviour
 
     }
 
-    public void GetThrown()
+    public void GetThrown(GameObject thrower)
     {
         isGrabbed = false;
         transform.SetParent(null);
         rb.isKinematic = false;
         rb.useGravity = true;
         rb.detectCollisions = true;
+
+     //   rb.AddForce(thrower.transform.forward * 10, ForceMode.Impulse);
+
 
     }
 
@@ -786,6 +799,12 @@ public class Player : MonoBehaviour
     public void TakeOut()
     {
         //DIE()???      
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.position = transform.position;
+        rb.rotation = transform.rotation;
+        rb.isKinematic = true;
+        isGrabbed = true;
         gameObject.SetActive(false);
     }
 }

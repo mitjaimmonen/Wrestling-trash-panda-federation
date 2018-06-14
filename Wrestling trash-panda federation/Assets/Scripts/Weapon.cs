@@ -23,7 +23,7 @@ public class Weapon : MonoBehaviour {
 		if(other.gameObject.layer == LayerMask.NameToLayer("Player"))
 		{
 			Player enemy = other.GetComponentInParent<Player>();
-			if (enemy)
+			if (enemy && enemy != player)
 			{
 				enemy.GetHit(damage);
 

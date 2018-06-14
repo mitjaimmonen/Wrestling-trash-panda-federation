@@ -1,0 +1,226 @@
+fileFormatVersion: 2
+guid: 8b98c32e2616aab4fa45efa43502d5ca
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: Base
+    100002: DownTeeth_002
+    100004: Eye_L
+    100006: Eye_R
+    100008: Eyes_002
+    100010: Fingers_L
+    100012: Fingers_R
+    100014: FingersTip_L
+    100016: FingersTip_R
+    100018: foot_L
+    100020: foot_R
+    100022: forearm_L
+    100024: forearm_R
+    100026: hand_L
+    100028: hand_R
+    100030: Head
+    100032: Jaw
+    100034: pelvis_L
+    100036: pelvis_R
+    100038: RaccoonRigShawn
+    100040: RaccoonShawn
+    100042: shin_L
+    100044: shin_R
+    100046: shoulder_L
+    100048: shoulder_R
+    100050: spine
+    100052: spine_001
+    100054: spine_002
+    100056: spine_003
+    100058: spine_004
+    100060: spine_005
+    100062: Tail
+    100064: Tail_001
+    100066: Tail_002
+    100068: Tail_003
+    100070: Tail_004
+    100072: Tail_005
+    100074: Tail_006
+    100076: Tail_007
+    100078: Tailbase
+    100080: thigh_L
+    100082: thigh_R
+    100084: Thumb_L
+    100086: Thumb_R
+    100088: ThumbBase_L
+    100090: ThumbBase_R
+    100092: toe_L
+    100094: toe_L_001
+    100096: toe_R
+    100098: toe_R_001
+    100100: upper_arm_L
+    100102: upper_arm_R
+    100104: UpTeeth_002
+    100106: Weapon
+    100108: //RootNode
+    400000: Base
+    400002: DownTeeth_002
+    400004: Eye_L
+    400006: Eye_R
+    400008: Eyes_002
+    400010: Fingers_L
+    400012: Fingers_R
+    400014: FingersTip_L
+    400016: FingersTip_R
+    400018: foot_L
+    400020: foot_R
+    400022: forearm_L
+    400024: forearm_R
+    400026: hand_L
+    400028: hand_R
+    400030: Head
+    400032: Jaw
+    400034: pelvis_L
+    400036: pelvis_R
+    400038: RaccoonRigShawn
+    400040: RaccoonShawn
+    400042: shin_L
+    400044: shin_R
+    400046: shoulder_L
+    400048: shoulder_R
+    400050: spine
+    400052: spine_001
+    400054: spine_002
+    400056: spine_003
+    400058: spine_004
+    400060: spine_005
+    400062: Tail
+    400064: Tail_001
+    400066: Tail_002
+    400068: Tail_003
+    400070: Tail_004
+    400072: Tail_005
+    400074: Tail_006
+    400076: Tail_007
+    400078: Tailbase
+    400080: thigh_L
+    400082: thigh_R
+    400084: Thumb_L
+    400086: Thumb_R
+    400088: ThumbBase_L
+    400090: ThumbBase_R
+    400092: toe_L
+    400094: toe_L_001
+    400096: toe_R
+    400098: toe_R_001
+    400100: upper_arm_L
+    400102: upper_arm_R
+    400104: UpTeeth_002
+    400106: Weapon
+    400108: //RootNode
+    2100000: Eyes_014
+    2100002: Material_013
+    2100004: Eyes_013
+    2100006: LightYellow__otter_robe_uv_002
+    2100008: BlueLight__otter_robe_uv_002
+    2100010: BlackFur_002__otter_robe_uv_002
+    2100012: Mouth__otter_robe_uv_002
+    2100014: BrightWhite__otter_robe_uv_002
+    2100016: WhiteFur_002__otter_robe_uv_002
+    2100018: GreenTrim__otter_robe_uv_002
+    2100020: GreyFur_001__otter_robe_uv_002
+    2100022: LighTMetal_002__otter_robe_uv_002
+    2100024: ChairGreen__otter_robe_uv_002
+    2100026: Nose_002__otter_robe_uv_002
+    2100028: LightGreyFur_002__otter_robe_uv_002
+    2100030: MetalGrey__otter_robe_uv_002
+    2100032: SpaceSuit__otter_robe_uv_002
+    4300000: DownTeeth_002
+    4300002: Eyes_002
+    4300004: RaccoonShawn
+    4300006: UpTeeth_002
+    7400000: Default Take
+    7400002: PoseLib_001
+    7400004: RaccoonRigAction_001
+    9500000: //RootNode
+    13700000: DownTeeth_002
+    13700002: Eyes_002
+    13700004: RaccoonShawn
+    13700006: UpTeeth_002
+    2186277476908879412: ImportLogs
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -86,7 +86,7 @@ public class StateHandler : MonoBehaviour
         if (gamestate == GameState.game)
         {
             if (LeftPlayers().Count < 2 || roundManager.TimeLeft() <= 0)
-            {                
+            {
                 roundManager.EndRound(LeftPlayers());
             }
 
@@ -146,16 +146,19 @@ public class StateHandler : MonoBehaviour
         {
             if (pDindex < playersDatas.Count)
             {
-                Player temp = p.GetComponentInParent<Player>();
-                temp.meshNumber = playersDatas[pDindex].meshNumber;
-                temp.playerNumber = playersDatas[pDindex].characterIndex;
-                if (!players.Contains(temp.gameObject))
+                if (p.GetComponent<Player>())
                 {
-                    players.Add(temp.gameObject);
-                    pDindex++;
+                    Player temp = p.GetComponent<Player>();
+                    temp.meshNumber = playersDatas[pDindex].meshNumber;
+                    temp.playerNumber = playersDatas[pDindex].characterIndex;
+                    if (!players.Contains(temp.gameObject))
+                    {
+                        players.Add(temp.gameObject);
+                        pDindex++;
 
+                    }
+                    Debug.Log("Added player, meshNumber is:" + temp.meshNumber);
                 }
-                Debug.Log("Added player, meshNumber is:" + temp.meshNumber);
             }
             else
             {
@@ -166,7 +169,7 @@ public class StateHandler : MonoBehaviour
 
         if (players.Count > 0)
         {
-            foreach(GameObject player in players)
+            foreach (GameObject player in players)
             {
                 player.GetComponentInChildren<MeshFilter>().mesh = playerMeshes[player.GetComponent<Player>().meshNumber];
 
@@ -212,7 +215,7 @@ public class StateHandler : MonoBehaviour
 
     public int Winner()
     {
-        return roundManager.GetWinner();
+        return roundManager.GetWinner() + 1;
     }
 
     #endregion

@@ -22,7 +22,8 @@ public class InputHandler : MonoBehaviour {
 		}
 		if (stateHandler.gamestate == GameState.game)
 		{
-			players[gamepadData.characterIndex].HandleInput(gamepadData.state, gamepadData.prevState);
+			if (gamepadData.characterIndex != -1)
+				players[gamepadData.characterIndex].HandleInput(gamepadData.state, gamepadData.prevState);
 		}
 
 		return gamepadData;
@@ -32,7 +33,8 @@ public class InputHandler : MonoBehaviour {
 	{
 		if (stateHandler.gamestate == GameState.game)
 		{
-			players[gamepadData.characterIndex].HandleFixedInput(gamepadData.state, gamepadData.prevState);
+			if (gamepadData.characterIndex != -1)
+				players[gamepadData.characterIndex].HandleFixedInput(gamepadData.state, gamepadData.prevState);
 		}
 		return gamepadData;
 	}
@@ -54,21 +56,13 @@ public class InputHandler : MonoBehaviour {
 				//Index should be first null
 				for(int j = 0; j < gamepad.playerDataArray.Length; j++)
 				{
-					if (gamepad.playerDataArray[j] == null)
+					Debug.Log(gamepad.playerDataArray[j].characterIndex);
+					if (gamepad.playerDataArray[j].characterIndex == -1)
 					{
 						Debug.Log("Activated gamepad's characterIndex: " + j);
 						newPlayerdata.characterIndex = j;
-						break;
-					}
-				}
-
-				gamepadData.characterIndex = newPlayerdata.characterIndex;
-				newPlayerdata.gamepadPlayerIndex = gamepadData.gamepadPlayerIndex;
-
-				for(int j = 0; j < gamepad.playerDataArray.Length; j++)
-				{
-					if (gamepad.playerDataArray[j] == null)
-					{
+						gamepadData.characterIndex = newPlayerdata.characterIndex;
+						newPlayerdata.gamepadPlayerIndex = gamepadData.gamepadPlayerIndex;
 						gamepad.playerDataArray[j] = newPlayerdata;
 						Debug.Log("Added to array");
 						break;
@@ -80,13 +74,15 @@ public class InputHandler : MonoBehaviour {
 			}
 			else
 			{
+				bool removed = false;
 				for (int j = 0; j < gamepad.playerDataArray.Length; j++)
 				{
-					if (gamepad.playerDataArray[j] != null && gamepad.playerDataArray[j].gamepadPlayerIndex == gamepadData.gamepadPlayerIndex)
+					if (!removed && gamepad.playerDataArray[j].gamepadPlayerIndex == gamepadData.gamepadPlayerIndex)
 					{
 						stateHandler.menuControl.RemovePlayer(gamepad.playerDataArray[j].characterIndex);
+						removed = true;
 						Debug.Log("deactivation of gamepad: " + gamepad.playerDataArray[j].gamepadPlayerIndex + ", characterIndex: " + gamepad.playerDataArray[j].characterIndex);
-						gamepad.playerDataArray[j] = null;
+						gamepad.playerDataArray[j].characterIndex = -1;
 					}
 				}
 			}

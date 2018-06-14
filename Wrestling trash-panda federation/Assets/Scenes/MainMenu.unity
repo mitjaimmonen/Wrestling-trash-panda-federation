@@ -776,10 +776,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gamestate: 0
-  playerPrefab: {fileID: 0}
+  playerPrefab: {fileID: 1336175932758766, guid: fbe36c935ecb7c7458a1d97f62882ce9,
+    type: 2}
   roundTest: 1
-  menuControl: {fileID: 0}
-  gamepadStateHandler: {fileID: 0}
+  menuControl: {fileID: 1574979668}
+  gamepadStateHandler: {fileID: 1310262162}
   roundManager: {fileID: 1310262160}
 --- !u!114 &1310262162
 MonoBehaviour:

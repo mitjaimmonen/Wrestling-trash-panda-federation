@@ -61,12 +61,12 @@ public class Player : MonoBehaviour
     public bool isStunned = false;
     public bool isPushed = false;
 
-    [SerializeField]bool isGrounded = true;
+    [SerializeField] bool isGrounded = true;
     bool weaponCharging = false;
     bool weaponCharged = false;
     bool isGrabbing = false;
-    [SerializeField]bool isPushing = false;
-    [SerializeField]bool isBlocking = false;
+    [SerializeField] bool isPushing = false;
+    [SerializeField] bool isBlocking = false;
     bool isHitting = false;
     bool leftHand = false;
     public GameObject currentWeapon;
@@ -108,8 +108,8 @@ public class Player : MonoBehaviour
         // pushingEnemy = Physics.CheckSphere(transform.position+ (transform.forward*(distToFace + 0.4f)), 0.3f, enemyLayerMask);
         bool pushingEnemy = false;
         Vector3 direction = transform.forward;
-        RaycastHit[] hits = Physics.SphereCastAll(transform.position + (direction * (distToFace + 0.1f)),0.25f,direction, 0.0f,enemyLayerMask );
-        foreach(var hit in hits)
+        RaycastHit[] hits = Physics.SphereCastAll(transform.position + (direction * (distToFace + 0.1f)), 0.25f, direction, 0.0f, enemyLayerMask);
+        foreach (var hit in hits)
         {
             Player enemy = hit.collider.GetComponentInParent<Player>();
             if (enemy && enemy != this)
@@ -125,7 +125,7 @@ public class Player : MonoBehaviour
             lastEnemyContact.GetPushed(false, this);
         }
         return pushingEnemy;
-        
+
     }
 
     void GetPushed(bool pushState, Player enemy)
@@ -140,7 +140,7 @@ public class Player : MonoBehaviour
             if (!isBlocking)
                 rb.velocity = enemy.rb.velocity;
             else
-                rb.velocity = -transform.forward * (maxSpeed*0.2f);
+                rb.velocity = -transform.forward * (maxSpeed * 0.2f);
 
         }
     }
@@ -167,8 +167,11 @@ public class Player : MonoBehaviour
         Physics.gravity = -Vector3.up * globalGravity;
         distToGround = playerCollider.bounds.extents.y;
         distToFace = playerCollider.bounds.extents.z;
-        anim = GetComponentInChildren<Animator>();     
-        grabPoint = gameObject.transform.Find("GrabPoint").gameObject;
+        anim = GetComponentInChildren<Animator>();
+        if (!grabPoint)
+        {
+            grabPoint = gameObject.transform.Find("GrabPoint").gameObject;
+        }
         enemyGrabPoint = gameObject.transform.Find("EnemyGrabPoint").gameObject;
         //for grabbing
     }
@@ -176,7 +179,7 @@ public class Player : MonoBehaviour
     {
         Vector3 pos = transform.position;
         pos.y += distToGround;
-        isGrounded = allowGrounded ? Physics.Raycast(pos, -transform.up, distToGround + 0.3f , groundLayerMask) : false;
+        isGrounded = allowGrounded ? Physics.Raycast(pos, -transform.up, distToGround + 0.3f, groundLayerMask) : false;
         anim.SetBool("isGrounded", isGrounded);
         if (isGrabbed)
         {
@@ -191,7 +194,7 @@ public class Player : MonoBehaviour
     }
     void Update()
     {
-        anim.SetBool("hasWeapon", currentWeapon!=null);
+        anim.SetBool("hasWeapon", currentWeapon != null);
         anim.SetBool("isHitting", isHitting);
         anim.SetBool("hasWeapon", currentWeapon != null);
         if (isPushed && isBlocking)
@@ -208,8 +211,8 @@ public class Player : MonoBehaviour
                 isPushed = false;
             }
         }
-        else if (blockPushTimer >0)
-            blockPushTimer -=Time.deltaTime;
+        else if (blockPushTimer > 0)
+            blockPushTimer -= Time.deltaTime;
 
         if (!allowGrounded)
         {
@@ -305,9 +308,9 @@ public class Player : MonoBehaviour
 
                 bool colliding = false;
                 float tempSpeed = maxSpeed;
-                Vector3 direction = new Vector3(newVelocity.x,0,newVelocity.y).normalized;
-                RaycastHit[] hits = Physics.SphereCastAll(transform.position + playerCollider.center + (direction * (distToFace)),0.5f,direction, 0.0f,enemyLayerMask );
-                foreach(var hit in hits)
+                Vector3 direction = new Vector3(newVelocity.x, 0, newVelocity.y).normalized;
+                RaycastHit[] hits = Physics.SphereCastAll(transform.position + playerCollider.center + (direction * (distToFace)), 0.5f, direction, 0.0f, enemyLayerMask);
+                foreach (var hit in hits)
                 {
                     Player enemy = hit.collider.GetComponentInParent<Player>();
                     if (enemy && enemy != this)
@@ -320,7 +323,7 @@ public class Player : MonoBehaviour
                 if (!colliding)
                     tempSpeed = maxSpeed;
 
-                    
+
                 if (newVelocity.magnitude > tempSpeed)
                     newVelocity = newVelocity.normalized * tempSpeed;
 
@@ -330,9 +333,9 @@ public class Player : MonoBehaviour
 
                 if (rotInput.magnitude < 0.1f)
                 {
-                    Vector3 euler = new Vector3(0, Mathf.Atan2(moveInput.x,moveInput.y) * 180 / Mathf.PI, 0);
+                    Vector3 euler = new Vector3(0, Mathf.Atan2(moveInput.x, moveInput.y) * 180 / Mathf.PI, 0);
                     if (euler.magnitude > 0.1f)
-                        transform.rotation = Quaternion.Lerp(Quaternion.Euler(transform.eulerAngles), Quaternion.Euler(euler), Time.deltaTime*7.5f);
+                        transform.rotation = Quaternion.Lerp(Quaternion.Euler(transform.eulerAngles), Quaternion.Euler(euler), Time.deltaTime * 7.5f);
                 }
 
                 rb.velocity = new Vector3(newVelocity.x, rb.velocity.y, newVelocity.y);
@@ -345,7 +348,7 @@ public class Player : MonoBehaviour
                 anim.SetBool("isMoving", false);
                 anim.SetFloat("speedForward", 0);
                 float multiplier = isGrounded ? 0.5f : 1f;
-                rb.velocity = new Vector3(rb.velocity.x *multiplier,rb.velocity.y, rb.velocity.z*multiplier);
+                rb.velocity = new Vector3(rb.velocity.x * multiplier, rb.velocity.y, rb.velocity.z * multiplier);
             }
 
 
@@ -355,17 +358,17 @@ public class Player : MonoBehaviour
             Vector3 euler = new Vector3(0, Mathf.Atan2(state.ThumbSticks.Left.X, state.ThumbSticks.Left.Y) * 180 / Mathf.PI, 0);
             if (euler.magnitude > 0.2f)
                 transform.rotation = Quaternion.Lerp(Quaternion.Euler(transform.eulerAngles), Quaternion.Euler(euler), Time.deltaTime);
-            
+
             anim.SetFloat("speedForward", 1.75f);
 
             Vector3 vel = transform.forward;
 
             if (!IsPushingEnemy())
-                vel *= maxSpeed*1.25f;
+                vel *= maxSpeed * 1.25f;
             else if (lastEnemyContact.isBlocking)
                 vel = lastEnemyContact.rb.velocity;
             else
-                vel *= maxSpeed*0.5f;
+                vel *= maxSpeed * 0.5f;
 
             rb.velocity = new Vector3(vel.x, rb.velocity.y, vel.z);
         }
@@ -531,7 +534,7 @@ public class Player : MonoBehaviour
             isHitting = true;
             anim.SetTrigger("hit");
             anim.SetBool("leftHand", leftHand);
-            anim.SetFloat ("HitNumber", Random.Range(0,3));
+            anim.SetFloat("HitNumber", Random.Range(0, 3));
             //if lefthand ->    hit with left hand
             //else ->           hit with right hand
             Invoke("CheckHit", hitTime / 2);
@@ -658,7 +661,7 @@ public class Player : MonoBehaviour
 
     public void GetGrabbed(GameObject grabber)
     {
-     //   rb.detectCollisions = false;
+        //   rb.detectCollisions = false;
         transform.SetParent(grabber.transform);
         transform.localPosition = localPositionWhenGrabbed;
         isGrabbed = true;

@@ -26,7 +26,7 @@ GameObject:
   - component: {fileID: 114739675575934094}
   m_Layer: 10
   m_Name: Death Carpet
-  m_TagString: Untagged
+  m_TagString: DeathCarpet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

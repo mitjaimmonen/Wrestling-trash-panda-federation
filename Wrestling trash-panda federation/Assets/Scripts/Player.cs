@@ -663,9 +663,9 @@ public class Player : MonoBehaviour
         else if (grabbedEnemy)
         {
             grabbedEnemy.GetThrown(this.gameObject);
-            anim.SetBool("isGrabbing", false);
         }
 
+        anim.SetBool("isGrabbing", false);
         isGrabbing = false;
     }
 
@@ -689,9 +689,24 @@ public class Player : MonoBehaviour
         rb.useGravity = true;
         rb.detectCollisions = true;
 
-     //   rb.AddForce(thrower.transform.forward * 10, ForceMode.Impulse);
+       // StartCoroutine(Flying(thrower));
+
+        //   
 
 
+    }
+
+    IEnumerator Flying(GameObject thrower)
+    {
+        float timer = 0;
+
+            rb.AddForce(thrower.transform.forward * 10, ForceMode.Impulse);
+        while (timer < 0.5f)
+        {
+            allowGrounded = false;
+            yield return null;
+        }
+        allowGrounded = true;
     }
 
     public void GetReleased()

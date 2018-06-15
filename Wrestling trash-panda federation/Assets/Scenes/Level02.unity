@@ -985,6 +985,30 @@ Prefab:
       propertyPath: m_ConnectedAnchor.z
       value: 0.0000014728363
       objectReference: {fileID: 0}
+    - target: {fileID: 4499626457473642, guid: bf8f0dda99ecca943af73934d3d71ba1, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 1.77
+      objectReference: {fileID: 0}
+    - target: {fileID: 4518578462391900, guid: bf8f0dda99ecca943af73934d3d71ba1, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: -1.79
+      objectReference: {fileID: 0}
+    - target: {fileID: 4304500220249652, guid: bf8f0dda99ecca943af73934d3d71ba1, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 1.67
+      objectReference: {fileID: 0}
+    - target: {fileID: 4304500220249652, guid: bf8f0dda99ecca943af73934d3d71ba1, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4304500220249652, guid: bf8f0dda99ecca943af73934d3d71ba1, type: 2}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 4304500220249652, guid: bf8f0dda99ecca943af73934d3d71ba1, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bf8f0dda99ecca943af73934d3d71ba1, type: 2}
   m_IsPrefabParent: 0

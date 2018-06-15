@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour {
 
-    public Transform[] players;
+    public List<Transform> players = new List<Transform>();
+    List<Transform> targets = new List<Transform>();
     public float lerpSpeed = 10f;
     public float distanceMargin = 1.0f;
     public float minDistance = 5f;
 
     private Vector3 middlePoint;
     private float distanceFromMiddlePoint;
-    private float distanceBetweenPlayers;
+    private float distanceBetweenTargets;
     private float cameraDistance;
     private float aspectRatio;
     private float fov;
@@ -20,6 +21,15 @@ public class CameraController : MonoBehaviour {
     void Start() {
         aspectRatio = Screen.width / Screen.height;
         tanFov = Mathf.Tan(Mathf.Deg2Rad * Camera.main.fieldOfView / 2.0f);
+        foreach(var p in players)
+        {
+            if (!p.gameObject.activeSelf && targets.Contains(p))
+                targets.Remove(p);
+            else if (p.gameObject.activeSelf && !targets.Contains(p))
+                targets.Add(p);
+
+
+        }
     }
 
     void LateUpdate () {
@@ -31,14 +41,14 @@ public class CameraController : MonoBehaviour {
         // Find the middle point between players.
         Vector3 sum = Vector3.zero;
         float maxMagnitude = 0;
-        foreach (var player in players)
+        foreach (var t in targets)
         {
-            sum += player.position;
+            sum += t.position;
         }
-        sum /= players.Length;
-        foreach (var player in players)
+        sum /= targets.Count;
+        foreach (var t in targets)
         {
-            maxMagnitude = Mathf.Max(maxMagnitude, (player.position-sum).magnitude);
+            maxMagnitude = Mathf.Max(maxMagnitude, (t.position-sum).magnitude);
         }
         middlePoint = sum;
         // Vector3 vectorBetweenPlayers = player2.position - player1.position;
@@ -46,8 +56,8 @@ public class CameraController : MonoBehaviour {
 
         // Calculate the new distance.
         // distanceBetweenPlayers = vectorBetweenPlayers.magnitude;
-        distanceBetweenPlayers = maxMagnitude*2f;
-        cameraDistance = Mathf.Max(minDistance, (distanceBetweenPlayers / 2.0f / aspectRatio) / tanFov);
+        distanceBetweenTargets = maxMagnitude*2f;
+        cameraDistance = Mathf.Max(minDistance, (distanceBetweenTargets / 2.0f / aspectRatio) / tanFov);
 
         // Set camera to new position.
         Vector3 dir = (transform.position - middlePoint).normalized;

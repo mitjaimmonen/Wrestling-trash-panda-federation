@@ -14,6 +14,8 @@ public class Weapon : MonoBehaviour
     public bool breakable;
     public float breakForce;
     public Collider[] colliders;
+    public GameObject brokenVersion;
+    public GameObject regularVersion;
 
     public bool grabbed;
     private Transform grabPoint;
